@@ -1,0 +1,13 @@
+version: '3'
+services:
+  postgres:
+    image: postgres
+    container_name: haa_postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=server
+      - POSTGRES_DB=hitch_atm_api
+    volumes:
+      - C:\Users\elias\development\hitch-projects\HitchAtmApi\HitchAtmApi\Files:/files
