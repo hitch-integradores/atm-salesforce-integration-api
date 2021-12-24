@@ -43,23 +43,67 @@ namespace HitchAtmApi.Controllers
         {
             try
             {
-                if (string.IsNullOrEmpty(Order.CodSF) ||
-                    string.IsNullOrEmpty(Order.CardCode) ||
-                    Order.DocDate == null ||
-                    Order.DocDueDate == null ||
-                    Order.TaxDate == null ||
-                    Order.PartSuply.HasValue == false ||
-                    (Order.Detail == null || Order.Detail?.Count == 0))
+                if (string.IsNullOrEmpty(Order.CodSF))
                 {
                     return new HttpResponse
                         .Error(
                             400,
                             "Los datos de entrada no son validos",
-                            "Uno de los campos requeridos no tienen un valor asignado")
+                            "El valor del campo \"CodSF\" no puede estar vacio")
                         .Send();
                 }
+                if (string.IsNullOrEmpty(Order.CardCode))
+                {
+                    return new HttpResponse
+                        .Error(
+                            400,
+                            "Los datos de entrada no son validos",
+                            "El valor del campo \"CardCode\" no puede estar vacio")
+                        .Send();
+                }
+                if (Order.DocDate == null)
+                {
+                    return new HttpResponse
+                        .Error(
+                            400,
+                            "Los datos de entrada no son validos",
+                            "El valor del campo \"DocDate\" no puede estar vacio")
+                        .Send();
+                }
+                if (Order.DocDueDate == null)
+                {
+                    return new HttpResponse
+                        .Error(
+                            400,
+                            "Los datos de entrada no son validos",
+                            "El valor del campo \"DocDueDate\" no puede estar vacio")
+                        .Send();
+                }
+                if (Order.TaxDate == null)
+                {
+                    return new HttpResponse
+                        .Error(
+                            400,
+                            "Los datos de entrada no son validos",
+                            "El valor del campo \"TaxDate\" no puede estar vacio")
+                        .Send();
+                }
+                if ((Order.Detail == null || Order.Detail?.Count == 0))
+                {
+                    return new HttpResponse
+                        .Error(
+                            400,
+                            "Los datos de entrada no son validos",
+                            "Deben indicarse uno o mas elementos en el campo \"Detail\"")
+                        .Send();
+                }
+                
+                if (Order.PartSuply.HasValue == false)
+                {
+                    Order.PartSuply = false;
+                }
 
-                SaleOrder orderInDb = await SalesOrdersService.GetSaleOrder(Order.CodSF);
+                /*SaleOrder orderInDb = await SalesOrdersService.GetSaleOrder(Order.CodSF);
                 Notification notification = null;
 
                 if (orderInDb != null)
@@ -71,12 +115,49 @@ namespace HitchAtmApi.Controllers
                     {
                         if (notification.DocNum.HasValue)
                         {
+                            try
+                            {
+                                SapService.UpdateSaleOrder(notification.DocEntry.Value, Order);
+                                notification.Status = "Finalizada";
+                                notification.Stage = "Registro actualizado";
+                                notification.FinishTime = DateTime.Now;
+
+                                await NotificationsService.UpdateNotification(notification);
+
+                                await NotificationsService.Log(new NotificationLog
+                                {
+                                    CreateTime = DateTime.Now,
+                                    Message = null,
+                                    NotificationId = notification.Id,
+                                    Operation = "Actualizando registro",
+                                    Status = "OK",
+                                });
+                            }
+                            catch (Exception ex)
+                            {
+                                await NotificationsService.Log(new NotificationLog
+                                {
+                                    CreateTime = DateTime.Now,
+                                    Message = $"{ex.Message}, {ex.StackTrace}",
+                                    NotificationId = notification.Id,
+                                    Operation = "Actualizando orden de venta en SAP",
+                                    Status = "ERROR",
+                                });
+
+                                notification.Status = "Fallida";
+                                await NotificationsService.UpdateNotification(notification);
+
+                                return new HttpResponse
+                                    .Error(500, "No logro actualizarse la orden de venta en SAP", ex.Message)
+                                    .Send();
+                            }
+
                             return new HttpResponse.Response<int>
                             {
                                 Data = notification.DocNum.Value,
                                 Error = null,
                                 Status = 200,
-                                Message = "Numero documento orden de venta en SAP"
+                                Message = "Registro actualizado"
                             }.Send();
                         }
                         else
@@ -147,14 +228,14 @@ namespace HitchAtmApi.Controllers
                     notification = await NotificationsService.GetNotification(orderInDb.Id.Value, "Orden de venta");
                     notification.Steps += 1;
                     await NotificationsService.UpdateNotification(notification);
-                }
+                }*/
 
                 Tuple<int, int> Values = null;
 
                 try
                 {
-                    Values = SapService.CreateSaleOrder(orderInDb);
-                    notification.DocEntry = Values.Item1;
+                    Values = SapService.CreateSaleOrder(Order);
+                    /*notification.DocEntry = Values.Item1;
                     notification.DocNum = Values.Item2;
                     notification.Status = "Finalizada";
                     notification.Stage = "Registro finalizado";
@@ -169,11 +250,11 @@ namespace HitchAtmApi.Controllers
                         NotificationId = notification.Id,
                         Operation = "Finalizando registro",
                         Status = "OK",
-                    });
+                    });*/
                 }
                 catch (Exception ex)
                 {
-                    await NotificationsService.Log(new NotificationLog
+                    /*await NotificationsService.Log(new NotificationLog
                     {
                         CreateTime = DateTime.Now,
                         Message = $"{ex.Message}, {ex.StackTrace}",
@@ -183,7 +264,7 @@ namespace HitchAtmApi.Controllers
                     });
 
                     notification.Status = "Fallida";
-                    await NotificationsService.UpdateNotification(notification);
+                    await NotificationsService.UpdateNotification(notification);*/
 
                     return new HttpResponse
                         .Error(500, "No logro registrarse la orden de venta en SAP", ex.Message)

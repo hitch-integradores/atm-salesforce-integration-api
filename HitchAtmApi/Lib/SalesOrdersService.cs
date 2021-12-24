@@ -58,7 +58,7 @@ namespace HitchAtmApi.Lib
             {
                 await provider.ExecCommand(
                     @"INSERT INTO SalesOrders (CardCode,CNTCCode,DocDate,DocDueDate,TaxDate,Descuento,Vendedor,ShipToCode,PayToCode,PartSuply,Project,CapacitacionReq,GarantiaPactada,MantPreventivo,NumVisitasAnoGarantia,OCcliente,DocOCCliente,ExistenMultas,DateOCCLiente,DateRecepcionOC,ContactSN,RutSN,NomSN,NumCotizacionProv,CancFaltaStock,LeasingATM,DirecEntregaFactura,CodSF)
-                    VALUES (@CardCode,@CNTCCode,@DocDate,@DocDueDate,@TaxDate,@Descuento,@Vendedor,@ShipToCode,@PayToCode,@PartSuply,@Project,@CapacitacionReq,@GarantiaPactada,@MantPreventivo,@NumVisitasAnoGarantia,@OCcliente,@DocOCCliente,@ExistenMultas,@DateOCCLiente,@DateRecepcionOC,@ContactSN,@RutSN,@NomSN,@NumCotizacionProv,@CancFaltaStock,@LeasingATM,@DirecEntregaFactura,@CodSF)",
+                    VALUES (@CardCode,@CNTCCode,@DocDate,@DocDueDate,@TaxDate,@DescuentoTotal,@Vendedor,@ShipToCode,@PayToCode,@PartSuply,@Project,@CapacitacionReq,@GarantiaPactada,@MantPreventivo,@NumVisitasAnoGarantia,@OCcliente,@DocOCCliente,@ExistenMultas,@DateOCCLiente,@DateRecepcionOC,@ContactSN,@RutSN,@NomSN,@NumCotizacionProv,@CancFaltaStock,@LeasingATM,@DirecEntregaFactura,@CodSF)",
                     order);
 
                 return await provider.QueryOne<long>("SELECT MAX(Id) FROM SalesOrders");
@@ -71,7 +71,7 @@ namespace HitchAtmApi.Lib
             {
                 await provider.ExecCommand(
                     @"UPDATE SalesOrders SET CardCode = @CardCode, CNTCCode = @CNTCCode, DocDate = @DocDate, DocDueDate = @DocDueDate,
-                    TaxDate = @TaxDate, Descuento = @Descuento, Vendedor = @Vendedor, ShipToCode = @ShipToCode, PayToCode = @PayToCode,
+                    TaxDate = @TaxDate, Descuento = @DescuentoTotal, Vendedor = @Vendedor, ShipToCode = @ShipToCode, PayToCode = @PayToCode,
                     PartSuply = @PartSuply, Project = @Project, CapacitacionReq = @CapacitacionReq, GarantiaPactada = @GarantiaPactada,
                     MantPreventivo = @MantPreventivo, NumVisitasAnoGarantia = @NumVisitasAnoGarantia, OCcliente = @OCcliente,
                     DocOCCliente = @DocOCCliente, ExistenMultas = @ExistenMultas, DateOCCLiente = @DateOCCLiente, DateRecepcionOC = @DateRecepcionOC,

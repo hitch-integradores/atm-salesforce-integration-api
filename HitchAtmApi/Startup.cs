@@ -19,6 +19,17 @@ namespace HitchAtmApi
         {
             Configuration = configuration;
             Utils.ATTACHMENTS_FOLDER = Configuration.GetValue<string>("AttachmentFolder");
+            Utils.SalesforceApiVersion = Configuration.GetValue<string>("SalesforceApiVersion");
+            Utils.SalesforceInstanceUrl = Configuration.GetValue<string>("SalesforceInstanceUrl");
+            Utils.Credentials = new Credentials
+            {
+                ClientId = Configuration.GetValue<string>("SalesforceAuth:ClientId"),
+                ClientSecret = Configuration.GetValue<string>("SalesforceAuth:ClientSecret"),
+                GrantType = Configuration.GetValue<string>("SalesforceAuth:GrantType"),
+                Password = Configuration.GetValue<string>("SalesforceAuth:Password"),
+                Token = Configuration.GetValue<string>("SalesforceAuth:Token"),
+                Username = Configuration.GetValue<string>("SalesforceAuth:Username")
+            };
         }
 
         public IConfiguration Configuration { get; }

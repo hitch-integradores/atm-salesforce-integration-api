@@ -90,14 +90,23 @@ namespace HitchAtmApi.Models
         public int? LlamadaServ { get; set; }
 
         /// <summary>Anexo</summary>
-        /// <remarks>PDF codificado en base64</remarks>
+        /// <remarks>Archivo codificado en base64</remarks>
         [JsonProperty("Anexo")]
         public string Anexo { get; set; }
+
+        /// <summary>Extension anexo</summary>
+        /// <remarks>Extension del archivo codificado en base64</remarks>
+        [JsonProperty("AnexoExt")]
+        public string AnexoExt { get; set; }
 
         /// <summary>Codigo salesforce solicitud de traslado</summary>
         [JsonProperty("CodSF")]
         [Required]
         public string CodSF { get; set; }
+
+        /// <summary>Comentario de la solicitud de traslado</summary>
+        [JsonProperty("Comments")]
+        public string Comments { get; set; }
 
         /// <summary>Contenido solicitud de traslado</summary>
         [JsonProperty("Detail")]
@@ -126,6 +135,22 @@ namespace HitchAtmApi.Models
         /// <summary>Cantidad articulo</summary>
         [JsonProperty("Quantity")]
         public int Quantity { get; set; }
+
+        /// <summary>Codigo linea</summary>
+        [JsonProperty("Dim1")]
+        public string Dim1 { get; set; }
+
+        /// <summary>Codigo area</summary>
+        [JsonProperty("Dim2")]
+        public string Dim2 { get; set; }
+
+        /// <summary>Codigo Unidad de negocio</summary>
+        [JsonProperty("Dim3")]
+        public string Dim3 { get; set; }
+
+        /// <summary>Codigo Zona</summary>
+        [JsonProperty("Zona")]
+        public string Zona { get; set; }
 
         [JsonIgnore]
         public long? TransferId { get; set; }

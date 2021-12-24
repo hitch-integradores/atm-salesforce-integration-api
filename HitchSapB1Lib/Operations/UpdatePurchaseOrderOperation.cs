@@ -1,14 +1,12 @@
 ﻿using System;
-using System.IO;
-using HitchSapB1Lib.Objects.Marketing;
+using HitchSapB1Lib.Objects.Shopping;
 
 namespace HitchSapB1Lib.Operations
 {
-    public class CreateSaleOrderOperation : SapOperation
+    public class UpdatePurchaseOrderOperation : SapOperation
     {
-        public SaleOrder SaleOrder = null;
-        public int? DocNum = null;
-        public int? DocEntry = null;
+        public PurchaseOrder PurchaseOrder = null;
+        public int DocEntry = 0;
 
         public void Start()
         {
@@ -21,19 +19,15 @@ namespace HitchSapB1Lib.Operations
 
             OperationResult Result = base.Start((object Object) =>
             {
-                SaleOrder = Object as SaleOrder;
+                PurchaseOrder = Object as PurchaseOrder;
 
                 BaseOperations BaseOperations = new BaseOperations();
                 BaseOperations.Company = Company;
                 BaseOperations.SapCompany = SapCompany;
 
-                int NewKey = BaseOperations.CreateSaleOrder(SaleOrder);
+                BaseOperations.UpdatePurchaseOrder(DocEntry, PurchaseOrder);
 
-                int Num = Company.QueryOneResult<int>(Company.IsHana
-                    ? $"SELECT T0.\"DocNum\" FROM ORDR T0 WHERE T0.\"DocEntry\" = {NewKey}"
-                    : $"SELECT T0.DocNum FROM ORDR T0 WHERE T0.DocEntry = {NewKey}");
-
-                return new Tuple<int, int>(NewKey, Num);
+                return 1;
             });
 
             if (Result.Result == null)
@@ -53,10 +47,6 @@ namespace HitchSapB1Lib.Operations
 
                 throw Result.Exception;
             }
-
-            var ResultNumbers = Result.Result as Tuple<int, int>;
-            DocEntry = ResultNumbers.Item1;
-            DocNum = ResultNumbers.Item2;
         }
 
         private void DefaultPreHook()
@@ -66,7 +56,7 @@ namespace HitchSapB1Lib.Operations
                 return new HookResult
                 {
                     Exception = null,
-                    Result = SaleOrder
+                    Result = PurchaseOrder
                 };
             };
         }

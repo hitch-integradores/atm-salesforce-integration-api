@@ -16,6 +16,10 @@ namespace HitchAtmApi.Models
         [Required]
         public string CardCode { get; set; }
 
+        /// <summary>Codigo propietario</summary>
+        [JsonProperty("SlpCode")]
+        public int? SlpCode { get; set; }
+
         /// <summary>Fecha de contabilizacion</summary>
         [JsonProperty("DocDate")]
         [Required]
@@ -84,6 +88,18 @@ namespace HitchAtmApi.Models
         [Required]
         public string CodSF { get; set; }
 
+        /// <summary>Archivo anexo de la orden de compra</summary>
+        [JsonProperty("Doc")]
+        public string Doc { get; set; }
+
+        /// <summary>Extension archivo anexo de la orden de compra</summary>
+        [JsonProperty("DocExt")]
+        public string DocExt { get; set; }
+
+        /// <summary>Comentario de la orden de compra</summary>
+        [JsonProperty("Comments")]
+        public string Comments { get; set; }
+
         /// <summary>Contenido orden de compra</summary>
         [JsonProperty("Detail")]
         [Required]
@@ -117,6 +133,14 @@ namespace HitchAtmApi.Models
         /// <summary>Codigo Unidad de negocio</summary>
         [JsonProperty("Dim3")]
         public string Dim3 { get; set; }
+
+        /// <summary>Codigo Zona</summary>
+        [JsonProperty("Zona")]
+        public string Zona { get; set; }
+
+        /// <summary>Importe</summary>
+        [JsonProperty("Importe")]
+        public double? Importe { get; set; }
 
         [JsonIgnore]
         public long? OrderId { get; set; }

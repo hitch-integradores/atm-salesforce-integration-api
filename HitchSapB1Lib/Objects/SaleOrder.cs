@@ -14,6 +14,7 @@ namespace HitchSapB1Lib.Objects.Marketing
         public int? SalesEmployeeCode { get; set; }
         public int? OwnerCode { get; set; }
         public int? ContactCode { get; set; }
+        public int? PaymentCondition { get; set; }
         public double? Discount { get; set; }
         public int? Serie { get; set; }
         public string Comment { get; set; }

@@ -36,8 +36,11 @@ namespace HitchAtmApi.Models
         public DateTime TaxDate { get; set; }
 
         /// <summary>Campo de usuario: % Descuento</summary>
-        [JsonProperty("Descuento")]
-        public string Descuento { get; set; }
+        [JsonProperty("DescuentoTotal")]
+        public string DescuentoTotal { get; set; }
+
+        [JsonProperty("DescuentoCabecera")]
+        public double? DescuentoCabecera { get; set; }
 
         /// <summary>Codigo del encargado de ventas</summary>
         [JsonProperty("Vendedor")]
@@ -50,6 +53,24 @@ namespace HitchAtmApi.Models
         /// <summary>ID direccion de facturacion</summary>
         [JsonProperty("PayToCode")]
         public string PayToCode { get; set; }
+
+
+        /// <summary>Codigo de la comuna</summary>
+        [JsonProperty("CountyCode")]
+        public string CountyCode { get; set; }
+
+        /// <summary>Codigo de la region</summary>
+        [JsonProperty("StateCode")]
+        public string StateCode { get; set; }
+
+        /// <summary>Codigo del pais</summary>
+        [JsonProperty("CountryCode")]
+        public string CountryCode { get; set; }
+
+
+        /// <summary>Codigo condicion de pago</summary>
+        [JsonProperty("PaymentCondition")]
+        public int? PaymentCondition { get; set; }
 
         /// <summary>Entrega parcial (Si o No)</summary>
         [JsonProperty("PartSuply")]
@@ -89,6 +110,11 @@ namespace HitchAtmApi.Models
         [JsonProperty("DocOCCliente")]
         public string DocOCCliente { get; set; }
 
+        /// <summary>Extension archivo orden de compra</summary>
+        /// <remarks>Extension archivo codificado en base64</remarks>
+        [JsonProperty("DocOCExt")]
+        public string DocOCExt { get; set; }
+
         /// <summary>Campo de usuario: ¿Existen Multas?</summary>
         [JsonProperty("ExistenMultas")]
         public string ExistenMultas { get; set; }
@@ -100,6 +126,10 @@ namespace HitchAtmApi.Models
         /// <summary>Campo de usuario: Fecha recep. O/C Cliente</summary>
         [JsonProperty("DateRecepcionOC")]
         public DateTime? DateRecepcionOC { get; set; }
+
+        /// <summary>Campo de usuario: Fecha de Entrega</summary>
+        [JsonProperty("FechaEntrega")]
+        public DateTime? FechaEntrega { get; set; }
 
         /// <summary>Campo de usuario: Contacto Socio Negocio</summary>
         [JsonProperty("ContactSN")]
@@ -133,6 +163,10 @@ namespace HitchAtmApi.Models
         [JsonProperty("CodSF")]
         [Required]
         public string CodSF { get; set; }
+
+        /// <summary>Comentario de la orden de venta</summary>
+        [JsonProperty("Comments")]
+        public string Comments { get; set; }
 
         /// <summary>Contenido orden de venta</summary>
         [JsonProperty("Detail")]
@@ -187,6 +221,30 @@ namespace HitchAtmApi.Models
         /// <summary>ID de salesforce del articulo</summary>
         [JsonProperty("IDSF")]
         public string IDSF { get; set; }
+
+        /// <summary>Codigo linea</summary>
+        [JsonProperty("Dim1")]
+        public string Dim1 { get; set; }
+
+        /// <summary>Codigo area</summary>
+        [JsonProperty("Dim2")]
+        public string Dim2 { get; set; }
+
+        /// <summary>Codigo Unidad de negocio</summary>
+        [JsonProperty("Dim3")]
+        public string Dim3 { get; set; }
+
+        /// <summary>Codigo Zona</summary>
+        [JsonProperty("Zona")]
+        public string Zona { get; set; }
+
+        /// <summary>Impuesto</summary>
+        [JsonProperty("TaxCode")]
+        public string TaxCode { get; set; }
+
+        /// <summary>Moneda</summary>
+        [JsonProperty("CurrencyCode")]
+        public string CurrencyCode { get; set; }
 
         [JsonIgnore]
         public long? OrderId { get; set; }

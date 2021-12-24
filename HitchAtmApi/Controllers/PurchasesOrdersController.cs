@@ -70,12 +70,49 @@ namespace HitchAtmApi.Controllers
                     {
                         if (notification.DocNum.HasValue)
                         {
+                            try
+                            {
+                                SapService.UpdatePurchaseOrder(notification.DocEntry.Value, Order);
+                                notification.Status = "Finalizada";
+                                notification.Stage = "Registro actualizado";
+                                notification.FinishTime = DateTime.Now;
+
+                                await NotificationsService.UpdateNotification(notification);
+
+                                await NotificationsService.Log(new NotificationLog
+                                {
+                                    CreateTime = DateTime.Now,
+                                    Message = null,
+                                    NotificationId = notification.Id,
+                                    Operation = "Actualizando registro",
+                                    Status = "OK",
+                                });
+                            }
+                            catch (Exception ex)
+                            {
+                                await NotificationsService.Log(new NotificationLog
+                                {
+                                    CreateTime = DateTime.Now,
+                                    Message = $"{ex.Message}, {ex.StackTrace}",
+                                    NotificationId = notification.Id,
+                                    Operation = "Actualizando orden de compra en SAP",
+                                    Status = "ERROR",
+                                });
+
+                                notification.Status = "Fallida";
+                                await NotificationsService.UpdateNotification(notification);
+
+                                return new HttpResponse
+                                    .Error(500, "No logro actualizarse la orden de compra en SAP", ex.Message)
+                                    .Send();
+                            }
+
                             return new HttpResponse.Response<int>
                             {
                                 Data = notification.DocNum.Value,
                                 Error = null,
                                 Status = 200,
-                                Message = "Numero documento orden de compra en SAP"
+                                Message = "Registro actualizado"
                             }.Send();
                         }
                         else
@@ -145,7 +182,7 @@ namespace HitchAtmApi.Controllers
 
                 try
                 {
-                    Values = SapService.CreatePurchaseOrder(orderInDb);
+                    Values = SapService.CreatePurchaseOrder(Order);
                     notification.DocEntry = Values.Item1;
                     notification.DocNum = Values.Item2;
                     notification.Status = "Finalizada";
