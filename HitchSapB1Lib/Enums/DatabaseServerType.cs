@@ -8,6 +8,7 @@
         MSSQL2014,
         MSSQL2016,
         MSSQL2017,
+        MSSQL2019,
         HANA
     }
 }
