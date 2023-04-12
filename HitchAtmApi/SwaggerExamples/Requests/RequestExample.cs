@@ -83,6 +83,10 @@ namespace HitchAtmApi.SwaggerExamples.SalesOrders.Requests
                 RutSN = "11111111-1",
                 OCcliente = "100101",
                 Project = "ZM",
+                DocumentoDespacho = "GD",
+                ExigenciaBackup = true,
+                FechaProbableFacturacion = DateTime.Now,
+                IdOportunidad = "712a6807-e93d-4aac-ac69-255f1cf9b9fb",
                 Detail = new List<SaleOrderDetail>
                 {
                     new SaleOrderDetail
@@ -94,6 +98,16 @@ namespace HitchAtmApi.SwaggerExamples.SalesOrders.Requests
                         Descuento = "10%",
                         UnitPrice = 10000,
                         Quantity = 12
+                    }
+                },
+                Attachments = new List<SaleOrderAttachment>
+                {
+                    new SaleOrderAttachment
+                    {
+                        Content = "JVBERi0xLjMNCiXi48/TDQoNCjEgMCBvYmoNCjw8DQovVHlwZ...",
+                        Filename = "factura.pdf",
+                        Date = DateTime.Now,
+                        Text = "Factura emitida para la ov"
                     }
                 }
             };

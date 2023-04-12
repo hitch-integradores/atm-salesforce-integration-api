@@ -42,7 +42,7 @@ namespace HitchAtmApi.Lib
                     CurrencySource = CurrencySource.Customer,
                     Comment = Order.Comments,
                     OwnerCode = null,
-                    CustomerReferenceNumber = null,
+                    CustomerReferenceNumber = Order.IdOportunidad,
                     SalesEmployeeCode = Order.Vendedor,
                     ContactCode = Order.CNTCCode,
                     Serie = null,
@@ -298,6 +298,33 @@ namespace HitchAtmApi.Lib
                     });
                 }
 
+                if (string.IsNullOrEmpty(Order.DocumentoDespacho) == false)
+                {
+                    SapOrder.UserFields.Add(new HitchSapB1Lib.Objects.UserField
+                    {
+                        Name = "U_SBODD",
+                        Value = Order.DocumentoDespacho
+                    });
+                }
+
+                if (Order.FechaProbableFacturacion.HasValue)
+                {
+                    SapOrder.UserFields.Add(new HitchSapB1Lib.Objects.UserField
+                    {
+                        Name = "U_SBOFPF",
+                        Value = Order.FechaProbableFacturacion
+                    });
+                }
+
+                if (Order.ExigenciaBackup.HasValue)
+                {
+                    SapOrder.UserFields.Add(new HitchSapB1Lib.Objects.UserField
+                    {
+                        Name = "U_SBOBACKUP",
+                        Value = Order.ExigenciaBackup.Value ? "Si" : "No"
+                    });
+                }
+
                 createSaleOrderOperation.SaleOrder = SapOrder;
                 createSaleOrderOperation.PreExecutionHook = () =>
                 {
@@ -482,7 +509,13 @@ namespace HitchAtmApi.Lib
                                 createAddress.Address = address;
                                 createAddress.PostExecutionHook = null;
 
-                                salesforceApi.UpdateDeliveryAddress(createAddress.Address.NumGlobalLocation, createAddress.Address.AddressCode);
+                                dynamic __addressWithNewCode = salesforceApi.GetDeliveryAddress(createAddress.Address.AddressCode);
+
+                                if (__addressWithNewCode == null)
+                                {
+                                    salesforceApi.UpdateDeliveryAddress(createAddress.Address.NumGlobalLocation, createAddress.Address.AddressCode);
+                                }
+
                                 createAddress.Start();
                                 
                                 SapOrder.ShipToCode = createAddress.Address.AddressCode;
@@ -534,8 +567,14 @@ namespace HitchAtmApi.Lib
                                 createAddress.Address = address;
                                 createAddress.PreExecutionHook = null;
                                 createAddress.PostExecutionHook = null;
-                                
-                                salesforceApi.UpdateDeliveryAddress(createAddress.Address.NumGlobalLocation, createAddress.Address.AddressCode);
+
+                                dynamic __addressWithNewCode = salesforceApi.GetDeliveryAddress(createAddress.Address.AddressCode);
+
+                                if (__addressWithNewCode == null)
+                                {
+                                    salesforceApi.UpdateDeliveryAddress(createAddress.Address.NumGlobalLocation, createAddress.Address.AddressCode);
+                                }
+
                                 createAddress.Start();
 
                                 SapOrder.PayToCode = createAddress.Address.AddressCode;

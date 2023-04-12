@@ -29,7 +29,7 @@
 
   <ItemGroup>
     <Reference Include="Interop.SAPbobsCOM">
-      <HintPath>..\HitchSapB1Lib\sapdll\Interop.SAPbobsCOM.dll</HintPath>
+      <HintPath>..\dll\x86\Interop.SAPbobsCOM.dll</HintPath>
     </Reference>
   </ItemGroup>
 

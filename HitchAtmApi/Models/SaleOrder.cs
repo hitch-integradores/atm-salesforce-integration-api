@@ -168,10 +168,30 @@ namespace HitchAtmApi.Models
         [JsonProperty("Comments")]
         public string Comments { get; set; }
 
+        /// <summary>Campo de usuario: Documento de Despacho</summary>
+        [JsonProperty("DocumentoDespacho")]
+        public string DocumentoDespacho { get; set; }
+
+        /// <summary>Campo de usuario: Fecha Probable Facturacion</summary>
+        [JsonProperty("FechaProbableFacturacion")]
+        public DateTime? FechaProbableFacturacion { get; set; }
+
+        /// <summary>Campo de usuario: ¿Exigencia de Backup?</summary>
+        [JsonProperty("ExigenciaBackup")]
+        public bool? ExigenciaBackup { get; set; }
+
+        /// <summary>ID oportunidad</summary>
+        [JsonProperty("IdOportunidad")]
+        public string IdOportunidad { get; set; }
+
         /// <summary>Contenido orden de venta</summary>
         [JsonProperty("Detail")]
         [Required]
         public List<SaleOrderDetail> Detail { get; set; }
+
+        /// <summary>Archivos o adjuntos de la orden de venta</summary>
+        [JsonProperty("Attachments")]
+        public List<SaleOrderAttachment> Attachments { get; set; }
     }
 
     /// <summary>Linea de contenido de orden de venta</summary>
@@ -248,5 +268,25 @@ namespace HitchAtmApi.Models
 
         [JsonIgnore]
         public long? OrderId { get; set; }
+    }
+
+    public class SaleOrderAttachment
+    {
+        /// <summary>Contenido del archivo</summary>
+        /// <remarks>archivo codificado en base64</remarks>
+        [JsonProperty("Content")]
+        public string Content { get; set; }
+
+        /// <summary>Nombre del archivo</summary>
+        [JsonProperty("Filename")]
+        public string Filename { get; set; }
+
+        /// <summary>Descripcion o texto indicando que es el archivo</summary>
+        [JsonProperty("Text")]
+        public string Text { get; set; }
+
+        /// <summary>Fecha del archivo</summary>
+        [JsonProperty("Date")]
+        public DateTime? Date { get; set; }
     }
 }

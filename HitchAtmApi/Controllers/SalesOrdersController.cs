@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
@@ -96,6 +97,36 @@ namespace HitchAtmApi.Controllers
                             "Los datos de entrada no son validos",
                             "Deben indicarse uno o mas elementos en el campo \"Detail\"")
                         .Send();
+                }
+
+                if (string.IsNullOrEmpty(Order.DocumentoDespacho) == false)
+                {
+                    if (Order.DocumentoDespacho != "GD" &&
+                        Order.DocumentoDespacho != "FV" &&
+                        Order.DocumentoDespacho != "FR")
+                    {
+                        return new HttpResponse
+                        .Error(
+                            400,
+                            "Los datos de entrada no son validos",
+                            "El valor del campo \"DocumentoDespacho\" no es valido. Valores permitidos son GD, FV o FR")
+                        .Send();
+                    }
+                }
+
+                if (Order.Attachments?.Count > 0)
+                {
+                    var InvalidFiles = Order.Attachments.Any(a => string.IsNullOrEmpty(a.Content) || string.IsNullOrEmpty(a.Filename));
+
+                    if (InvalidFiles)
+                    {
+                        return new HttpResponse
+                        .Error(
+                            400,
+                            "Los datos de entrada no son validos",
+                            "Uno de los items del campo \"Attachments\" no es valido")
+                        .Send();
+                    }
                 }
                 
                 if (Order.PartSuply.HasValue == false)
