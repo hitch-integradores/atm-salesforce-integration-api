@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using HitchAtmApi.Lib;
 using HitchAtmApi.Models;
 using HitchAtmApi.SwaggerExamples.Responses;
+using System.Threading;
 
 namespace HitchAtmApi.Controllers
 {
@@ -40,10 +41,18 @@ namespace HitchAtmApi.Controllers
         [ProducesResponseType(typeof(SaleOrderSuccessResponse), 200)]
         [ProducesResponseType(typeof(SaleOrderErrorResponse), 500)]
         [ProducesResponseType(typeof(SaleOrderBadResponse), 400)]
-        async public Task<IActionResult> SaveSaleOrder([FromBody] SaleOrder Order)
+        public IActionResult SaveSaleOrder([FromBody] SaleOrder Order)
         {
             try
             {
+                // agregar comprobacion de cliente con el campo CardCode
+                // agregar comprobacion de contacto con el campo CNTCCode
+                // agregar comprobacion de direccion de despacho con el campo ShipToCode
+                // agregar comprobacion de direccion de facturacion con el campo PayToCode
+
+                // agregar ejecucion del proceso de sincronizacion en caso de actualizar el id de salesforce
+                // de un registro
+
                 if (string.IsNullOrEmpty(Order.CodSF))
                 {
                     return new HttpResponse
@@ -134,169 +143,14 @@ namespace HitchAtmApi.Controllers
                     Order.PartSuply = false;
                 }
 
-                /*SaleOrder orderInDb = await SalesOrdersService.GetSaleOrder(Order.CodSF);
-                Notification notification = null;
-
-                if (orderInDb != null)
-                {
-                    notification = await NotificationsService.GetNotification(orderInDb.Id.Value, "Orden de venta");
-                    orderInDb.Detail = await SalesOrdersService.GetSaleOrderDetail(orderInDb.Id.Value);
-
-                    if (notification != null)
-                    {
-                        if (notification.DocNum.HasValue)
-                        {
-                            try
-                            {
-                                SapService.UpdateSaleOrder(notification.DocEntry.Value, Order);
-                                notification.Status = "Finalizada";
-                                notification.Stage = "Registro actualizado";
-                                notification.FinishTime = DateTime.Now;
-
-                                await NotificationsService.UpdateNotification(notification);
-
-                                await NotificationsService.Log(new NotificationLog
-                                {
-                                    CreateTime = DateTime.Now,
-                                    Message = null,
-                                    NotificationId = notification.Id,
-                                    Operation = "Actualizando registro",
-                                    Status = "OK",
-                                });
-                            }
-                            catch (Exception ex)
-                            {
-                                await NotificationsService.Log(new NotificationLog
-                                {
-                                    CreateTime = DateTime.Now,
-                                    Message = $"{ex.Message}, {ex.StackTrace}",
-                                    NotificationId = notification.Id,
-                                    Operation = "Actualizando orden de venta en SAP",
-                                    Status = "ERROR",
-                                });
-
-                                notification.Status = "Fallida";
-                                await NotificationsService.UpdateNotification(notification);
-
-                                return new HttpResponse
-                                    .Error(500, "No logro actualizarse la orden de venta en SAP", ex.Message)
-                                    .Send();
-                            }
-
-                            return new HttpResponse.Response<int>
-                            {
-                                Data = notification.DocNum.Value,
-                                Error = null,
-                                Status = 200,
-                                Message = "Registro actualizado"
-                            }.Send();
-                        }
-                        else
-                        {
-                            await SalesOrdersService.DeleteOrder(orderInDb.Id.Value);
-
-                            string Doc = Order.DocOCCliente;
-                            Order.DocOCCliente = null;
-                            Order.Id = await SalesOrdersService.SaveSaleOrder(Order);
-                            Order.DocOCCliente = Doc;
-
-                            foreach (var line in Order.Detail)
-                            {
-                                line.OrderId = Order.Id.Value;
-                                line.Id = await SalesOrdersService.SaveSaleOrderLine(line);
-                            }
-
-                            orderInDb = Order;
-
-                            notification.RefId = Order.Id.Value;
-                            await NotificationsService.UpdateNotification(notification);
-                        }
-                    }
-                }
-
-                long orderId = 0;
-
-                if (orderInDb == null)
-                {
-                    string Doc = Order.DocOCCliente;
-                    Order.DocOCCliente = null;
-                    Order.Id = await SalesOrdersService.SaveSaleOrder(Order);
-                    Order.DocOCCliente = Doc;
-                    
-                    foreach (var line in Order.Detail)
-                    {
-                        line.OrderId = Order.Id;
-                        line.Id = await SalesOrdersService.SaveSaleOrderLine(line);
-                    }
-
-                    orderInDb = Order;
-                    orderId = orderInDb.Id.Value;
-                }
-                else
-                {
-                    orderId = orderInDb.Id.Value;
-                }
-
-                if (notification == null)
-                {
-                    await NotificationsService.AddNotification(new Notification
-                    {
-                        CreateTime = DateTime.Now,
-                        Stage = "Registrando datos orden de venta",
-                        Status = "Pendiente",
-                        Steps = 1,
-                        RefType = "Orden de venta",
-                        RefId = orderId,
-                        FinishTime = null,
-                        DocEntry = null,
-                        DocNum = null
-                    });
-
-                    notification = await NotificationsService.GetNotification(orderInDb.Id.Value, "Orden de venta");
-                }
-                else
-                {
-                    notification = await NotificationsService.GetNotification(orderInDb.Id.Value, "Orden de venta");
-                    notification.Steps += 1;
-                    await NotificationsService.UpdateNotification(notification);
-                }*/
-
                 Tuple<int, int> Values = null;
 
                 try
                 {
                     Values = SapService.CreateSaleOrder(Order);
-                    /*notification.DocEntry = Values.Item1;
-                    notification.DocNum = Values.Item2;
-                    notification.Status = "Finalizada";
-                    notification.Stage = "Registro finalizado";
-                    notification.FinishTime = DateTime.Now;
-
-                    await NotificationsService.UpdateNotification(notification);
-
-                    await NotificationsService.Log(new NotificationLog
-                    {
-                        CreateTime = DateTime.Now,
-                        Message = null,
-                        NotificationId = notification.Id,
-                        Operation = "Finalizando registro",
-                        Status = "OK",
-                    });*/
                 }
                 catch (Exception ex)
                 {
-                    /*await NotificationsService.Log(new NotificationLog
-                    {
-                        CreateTime = DateTime.Now,
-                        Message = $"{ex.Message}, {ex.StackTrace}",
-                        NotificationId = notification.Id,
-                        Operation = "Creando orden de venta en SAP",
-                        Status = "ERROR",
-                    });
-
-                    notification.Status = "Fallida";
-                    await NotificationsService.UpdateNotification(notification);*/
-
                     return new HttpResponse
                         .Error(500, "No logro registrarse la orden de venta en SAP", ex.Message)
                         .Send();

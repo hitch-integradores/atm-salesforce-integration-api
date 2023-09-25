@@ -23,17 +23,17 @@ namespace HitchAtmApi.Models
         /// <summary>Fecha de contabilizacion</summary>
         [JsonProperty("DocDate")]
         [Required]
-        public DateTime DocDate { get; set; }
+        public DateTime? DocDate { get; set; }
 
         /// <summary>Fecha de entrega</summary>
         [JsonProperty("DocDueDate")]
         [Required]
-        public DateTime DocDueDate { get; set; }
+        public DateTime? DocDueDate { get; set; }
 
         /// <summary>Fecha de documento</summary>
         [JsonProperty("TaxDate")]
         [Required]
-        public DateTime TaxDate { get; set; }
+        public DateTime? TaxDate { get; set; }
 
         /// <summary>Numero de serie documento</summary>
         [JsonProperty("Serie")]

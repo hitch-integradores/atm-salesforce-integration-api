@@ -31,9 +31,9 @@ namespace HitchAtmApi.Lib
                 HitchSapB1Lib.Objects.Marketing.SaleOrder SapOrder = new HitchSapB1Lib.Objects.Marketing.SaleOrder
                 {
                     CustomerCode = Order.CardCode,
-                    DocumentDate = Order.DocDate,
-                    DueDate = Order.DocDueDate,
-                    TaxDate = Order.TaxDate,
+                    DocumentDate = Order.DocDate.Value,
+                    DueDate = Order.DocDueDate.Value,
+                    TaxDate = Order.TaxDate.Value,
                     Discount = Order.DescuentoCabecera,
                     PayToCode = Order.PayToCode, // ID EXTERNO DIRECCION SALESFORCE
                     ShipToCode = Order.ShipToCode, // ID EXTERNO DIRECCION SALESFORCE
@@ -622,20 +622,6 @@ namespace HitchAtmApi.Lib
             return accessToken;
         }
 
-        /*public static HitchSapB1Lib.Objects.Definition.Address ExtractResponseAddressData(SalesforceResponse compositeRespose)
-        {
-            dynamic content = JsonConvert.DeserializeObject(compositeRespose.Content);
-
-            var address = new HitchSapB1Lib.Objects.Definition.Address();
-
-            if (content.compositeResponse != null)
-            {
-                List<dynamic> responses = (content.compositeResponse as List<dynamic>);
-
-
-            }
-        }*/
-
         public void UpdateSaleOrder(int DocEntry, HitchAtmApi.Models.SaleOrder Order)
         {
             using (Company company = new Company(DefaultConnectionParameters))
@@ -645,9 +631,9 @@ namespace HitchAtmApi.Lib
                 HitchSapB1Lib.Objects.Marketing.SaleOrder SapOrder = new HitchSapB1Lib.Objects.Marketing.SaleOrder
                 {
                     CustomerCode = Order.CardCode,
-                    DocumentDate = Order.DocDate,
-                    DueDate = Order.DocDueDate,
-                    TaxDate = Order.TaxDate,
+                    DocumentDate = Order.DocDate.Value,
+                    DueDate = Order.DocDueDate.Value,
+                    TaxDate = Order.TaxDate.Value,
                     Discount = Order.DescuentoCabecera,
                     PayToCode = Order.PayToCode,
                     ShipToCode = Order.ShipToCode,
@@ -1022,9 +1008,9 @@ namespace HitchAtmApi.Lib
                 HitchSapB1Lib.Objects.Shopping.PurchaseOrder SapOrder = new HitchSapB1Lib.Objects.Shopping.PurchaseOrder
                 {
                     ProviderCode = Order.CardCode,
-                    DocumentDate = Order.DocDate,
-                    DueDate = Order.DocDueDate,
-                    TaxDate = Order.TaxDate,
+                    DocumentDate = Order.DocDate.Value,
+                    DueDate = Order.DocDueDate.Value,
+                    TaxDate = Order.TaxDate.Value,
                     Discount = null,
                     PayToCode = null,
                     ShipToCode = null,
@@ -1193,9 +1179,9 @@ namespace HitchAtmApi.Lib
                 HitchSapB1Lib.Objects.Shopping.PurchaseOrder SapOrder = new HitchSapB1Lib.Objects.Shopping.PurchaseOrder
                 {
                     ProviderCode = Order.CardCode,
-                    DocumentDate = Order.DocDate,
-                    DueDate = Order.DocDueDate,
-                    TaxDate = Order.TaxDate,
+                    DocumentDate = Order.DocDate.Value,
+                    DueDate = Order.DocDueDate.Value,
+                    TaxDate = Order.TaxDate.Value,
                     Discount = null,
                     PayToCode = null,
                     ShipToCode = null,
@@ -1364,9 +1350,9 @@ namespace HitchAtmApi.Lib
                     CustomerCode = Transfer.CardCode,
                     ContactCode = Transfer.Contacto,
                     Comment = Transfer.Comments,
-                    DocumentDate = Transfer.DocDate,
-                    DueDate = Transfer.DocDueDate,
-                    TaxDate = Transfer.TaxDate,
+                    DocumentDate = Transfer.DocDate.Value,
+                    DueDate = Transfer.DocDueDate.Value,
+                    TaxDate = Transfer.TaxDate.Value,
                     StartDeliveryDate = null,
                     EndDeliveryDate = null,
                     FromWarehouseCode = Transfer.AlmacenOrigen,
@@ -1514,9 +1500,9 @@ namespace HitchAtmApi.Lib
                     CustomerCode = Transfer.CardCode,
                     ContactCode = Transfer.Contacto,
                     Comment = Transfer.Comments,
-                    DocumentDate = Transfer.DocDate,
-                    DueDate = Transfer.DocDueDate,
-                    TaxDate = Transfer.TaxDate,
+                    DocumentDate = Transfer.DocDate.Value,
+                    DueDate = Transfer.DocDueDate.Value,
+                    TaxDate = Transfer.TaxDate.Value,
                     StartDeliveryDate = null,
                     EndDeliveryDate = null,
                     FromWarehouseCode = Transfer.AlmacenOrigen,

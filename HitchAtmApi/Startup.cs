@@ -1,8 +1,6 @@
 ﻿using System.IO;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Features;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using HitchAtmApi.Lib;
@@ -10,6 +8,7 @@ using Swashbuckle.AspNetCore.Swagger;
 using System.Reflection;
 using System;
 using Swashbuckle.AspNetCore.Filters;
+using Microsoft.AspNetCore.Hosting;
 
 namespace HitchAtmApi
 {
@@ -40,8 +39,7 @@ namespace HitchAtmApi
             services.AddCors(options => options.AddPolicy("AllowAllOrigins", corsBuilder => corsBuilder
                 .AllowAnyOrigin()
                 .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials()));
+                .AllowAnyMethod()));
 
             // Definir tamaño de request al maximo permitido
             services.AddOptions();
@@ -82,11 +80,14 @@ namespace HitchAtmApi
             services.AddSingleton(new TransfersRequestsService(connectionParameters));
             services.AddSingleton(new SapService(sapConnectionParameters.ToConnectionParameters()));
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvc(options =>
+            {
+                options.EnableEndpointRouting = false;
+            });
 
             services.AddSwaggerGen(x =>
             {
-                x.SwaggerDoc("v1", new Info { Title = "Hitch ATM API", Version = "v1" });
+                x.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Hitch ATM API", Version = "v1" });
 
                 x.ExampleFilters();
 
@@ -98,17 +99,9 @@ namespace HitchAtmApi
             services.AddSwaggerExamplesFromAssemblyOf<Startup>();
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseHsts();
-            }
-
+            app.UseHsts();
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
@@ -118,7 +111,7 @@ namespace HitchAtmApi
             app.UseDefaultFiles();
             app.UseStaticFiles();
             app.UseHttpsRedirection();
-            app.UseMiddleware<ApiLoggerMiddleware>();
+            // app.UseMiddleware<ApiLoggerMiddleware>();
             app.UseMvc();
         }
     }

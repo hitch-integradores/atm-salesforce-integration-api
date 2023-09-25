@@ -57,6 +57,10 @@ namespace HitchAtmApi
             {
                 parameters.ServerType = DatabaseServerType.MSSQL2017;
             }
+            else if (DatabaseType == "MSSQL2019")
+            {
+                parameters.ServerType = DatabaseServerType.MSSQL2019;
+            }
             else if (DatabaseType == "HANA")
             {
                 parameters.ServerType = DatabaseServerType.HANA;

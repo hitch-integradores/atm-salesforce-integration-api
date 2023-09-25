@@ -5,7 +5,6 @@ using System.Net;
 using RestSharp;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Web;
 
 namespace HitchAtmApi.Lib
 {
@@ -54,7 +53,7 @@ namespace HitchAtmApi.Lib
             var client = new RestClient(BaseUrl);
             string url = "services/oauth2/token";
 
-            RestRequest request = new RestRequest(url, Method.POST);
+            RestRequest request = new RestRequest(url, Method.Post);
             request.AddHeader("Content-Type", "application/x-www-form-urlencoded");
             request.AddParameter(
                 "application/x-www-form-urlencoded",
@@ -63,7 +62,7 @@ namespace HitchAtmApi.Lib
                 $"&client_id={Credentials.ClientId}",
                 ParameterType.RequestBody);
 
-            IRestResponse response = client.Execute(request);
+            RestResponse response = client.Execute(request);
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
@@ -144,7 +143,7 @@ namespace HitchAtmApi.Lib
         public SalesforceResponse GetRequest(string url)
         {
             var client = new RestClient(BaseUrl);
-            RestRequest request = new RestRequest(url, Method.GET);
+            RestRequest request = new RestRequest(url, Method.Get);
             request.AddHeader("Content-Type", "application/json");
 
             if (string.IsNullOrEmpty(Token) == false)
@@ -152,7 +151,7 @@ namespace HitchAtmApi.Lib
                 request.AddHeader("Authorization", $"Bearer {Token}");
             }
 
-            IRestResponse response = client.Execute(request);
+            RestResponse response = client.Execute(request);
 
             return new SalesforceResponse
             {
@@ -164,7 +163,7 @@ namespace HitchAtmApi.Lib
         public SalesforceResponse PostRequest(string url, object body)
         {
             var client = new RestClient(BaseUrl);
-            RestRequest request = new RestRequest(url, Method.POST);
+            RestRequest request = new RestRequest(url, Method.Post);
             request.AddHeader("Content-Type", "application/json");
 
             if (string.IsNullOrEmpty(Token) == false)
@@ -174,7 +173,7 @@ namespace HitchAtmApi.Lib
 
             request.AddJsonBody(body);
 
-            IRestResponse response = client.Execute(request);
+            RestResponse response = client.Execute(request);
 
             return new SalesforceResponse
             {
@@ -222,7 +221,7 @@ namespace HitchAtmApi.Lib
         public SalesforceResponse PatchRequest(string url, object body)
         {
             var client = new RestClient(BaseUrl);
-            RestRequest request = new RestRequest(url, Method.PATCH);
+            RestRequest request = new RestRequest(url, Method.Patch);
             request.AddHeader("Content-Type", "application/json");
 
             if (string.IsNullOrEmpty(Token) == false)
@@ -232,7 +231,7 @@ namespace HitchAtmApi.Lib
 
             request.AddJsonBody(body);
 
-            IRestResponse response = client.Execute(request);
+            RestResponse response = client.Execute(request);
 
             return new SalesforceResponse
             {

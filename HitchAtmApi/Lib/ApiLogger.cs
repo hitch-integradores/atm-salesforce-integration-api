@@ -4,7 +4,6 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
 using HitchAtmApi.Models;
 
 namespace HitchAtmApi.Lib
@@ -54,7 +53,7 @@ namespace HitchAtmApi.Lib
 
         private async Task<string> ReadRequestBody(HttpRequest request)
         {
-            request.EnableRewind();
+            request.EnableBuffering();
 
             var buffer = new byte[Convert.ToInt32(request.ContentLength)];
             await request.Body.ReadAsync(buffer, 0, buffer.Length);
