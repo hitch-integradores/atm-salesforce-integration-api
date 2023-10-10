@@ -4,11 +4,11 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using HitchAtmApi.Lib;
-using Swashbuckle.AspNetCore.Swagger;
 using System.Reflection;
 using System;
 using Swashbuckle.AspNetCore.Filters;
-using Microsoft.AspNetCore.Hosting;
+using Hangfire;
+using Hangfire.PostgreSql;
 
 namespace HitchAtmApi
 {
@@ -71,8 +71,12 @@ namespace HitchAtmApi
                 Username = Configuration.GetValue<string>("Sap:Username")
             };
 
+            string sqlServerConnectionString = Configuration.GetValue<string>("SqlServerConnection");
+            string urlApi = Configuration.GetValue<string>("UrlApi");
+
             // Inyectar servicios y configuracion como dependencias
             services.AddSingleton(Configuration);
+            services.AddSingleton(new Hs2Service(sqlServerConnectionString, urlApi));
             services.AddSingleton(new LogService(connectionParameters));
             services.AddSingleton(new NotificationsService(connectionParameters));
             services.AddSingleton(new SalesOrdersService(connectionParameters));
@@ -97,10 +101,23 @@ namespace HitchAtmApi
             });
 
             services.AddSwaggerExamplesFromAssemblyOf<Startup>();
+
+            string postgresConnectionString = $"Host={connectionParameters.Server};Port=5432;Database={connectionParameters.Database};User Id={connectionParameters.User};Password={connectionParameters.Password};";
+
+            services.AddHangfire(hangfire => {
+                hangfire.UsePostgreSqlStorage(postgresConnectionString);
+            });
+
+            services.AddHangfireServer();
         }
 
         public void Configure(IApplicationBuilder app)
         {
+            app.UseHangfireDashboard("/hangfire", new DashboardOptions
+            {
+                Authorization = new[] { new HangfireDashboardAuthorization() } // Configura la autorización si es necesario
+            });
+
             app.UseHsts();
             app.UseSwagger();
             app.UseSwaggerUI(c =>
@@ -111,7 +128,7 @@ namespace HitchAtmApi
             app.UseDefaultFiles();
             app.UseStaticFiles();
             app.UseHttpsRedirection();
-            // app.UseMiddleware<ApiLoggerMiddleware>();
+            app.UseMiddleware<ApiLoggerMiddleware>();
             app.UseMvc();
         }
     }

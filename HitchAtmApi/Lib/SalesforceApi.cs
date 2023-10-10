@@ -104,6 +104,24 @@ namespace HitchAtmApi.Lib
             return JsonConvert.DeserializeObject<dynamic>(response.Content);
         }
 
+        public dynamic GetContact(string Code)
+        {
+            SalesforceResponse response = GetRequest(
+                $"services/data/{Version}/query?q=SELECT id, Id_Externo__c FROM Contact where Id_externo__c = '{Code}'");
+
+            if (response.Status == 403)
+            {
+                throw new Exception("Se ha excedido el limite de request de Salesforce");
+            }
+
+            if (response.Status == 404)
+            {
+                return null;
+            }
+
+            return JsonConvert.DeserializeObject<dynamic>(response.Content);
+        }
+
         public dynamic GetDeliveryAddress(string Code)
         {
             SalesforceResponse response = GetRequest(

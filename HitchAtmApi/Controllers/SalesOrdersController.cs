@@ -7,6 +7,7 @@ using HitchAtmApi.Lib;
 using HitchAtmApi.Models;
 using HitchAtmApi.SwaggerExamples.Responses;
 using System.Threading;
+using Hangfire;
 
 namespace HitchAtmApi.Controllers
 {
@@ -45,13 +46,7 @@ namespace HitchAtmApi.Controllers
         {
             try
             {
-                // agregar comprobacion de cliente con el campo CardCode
-                // agregar comprobacion de contacto con el campo CNTCCode
-                // agregar comprobacion de direccion de despacho con el campo ShipToCode
-                // agregar comprobacion de direccion de facturacion con el campo PayToCode
-
-                // agregar ejecucion del proceso de sincronizacion en caso de actualizar el id de salesforce
-                // de un registro
+                BackgroundJob.Enqueue<IntegrationResultJob>((x) => x.IntegrationJob(Order));
 
                 if (string.IsNullOrEmpty(Order.CodSF))
                 {
