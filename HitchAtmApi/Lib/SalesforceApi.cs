@@ -140,6 +140,8 @@ namespace HitchAtmApi.Lib
             return JsonConvert.DeserializeObject<dynamic>(response.Content);
         }
 
+        // https://atmchile.my.salesforce.com/services/data/v45.0/sobjects/Opportunity/006Rn000001XW5NIAW
+
         public void UpdateDeliveryAddress(string id, string newCode)
         {
             SalesforceResponse response = PatchRequest($"services/data/{Version}/sobjects/Direccion_de_despacho__c/{id}", new
