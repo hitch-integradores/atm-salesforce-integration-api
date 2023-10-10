@@ -27,7 +27,6 @@ namespace HitchSapB1Lib
             { DatabaseServerType.MSSQL2014, SAPbobsCOM.BoDataServerTypes.dst_MSSQL2014 },
             { DatabaseServerType.MSSQL2016, SAPbobsCOM.BoDataServerTypes.dst_MSSQL2016 },
             { DatabaseServerType.MSSQL2017, SAPbobsCOM.BoDataServerTypes.dst_MSSQL2017 },
-            { DatabaseServerType.MSSQL2019, SAPbobsCOM.BoDataServerTypes.dst_MSSQL2019 },
             { DatabaseServerType.HANA, SAPbobsCOM.BoDataServerTypes.dst_HANADB }
         };
 
@@ -1421,8 +1420,8 @@ namespace HitchSapB1Lib
                     if (Card.CardType.HasValue)
                     {
                         CustomerCard.ServiceBPType = Card.CardType == EquipmentCardType.Sales
-                            ? SAPbobsCOM.BoEquipmentBPType.et_Sales
-                            : SAPbobsCOM.BoEquipmentBPType.et_Purchasing;
+                            ? SAPbobsCOM.ServiceTypeEnum.srvcSales
+                            : SAPbobsCOM.ServiceTypeEnum.srvcPurchasing;
                     }
 
                     if (Card.ContactCard.HasValue)
