@@ -63,7 +63,7 @@ namespace HitchAtmApi.SwaggerExamples.SalesOrders.Requests
                 PayToCode = "",
                 PartSuply = false,
                 CodSF = "TESTHITCH01",
-                DescuentoTotal = "10%",
+                DescuentoTotal = 10,
                 DescuentoCabecera = 10.0,
                 CancFaltaStock = false,
                 CapacitacionReq = "01",

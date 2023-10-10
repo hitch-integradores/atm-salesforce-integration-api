@@ -289,7 +289,7 @@ namespace HitchAtmApi.Lib
                     });
                 }
 
-                if (string.IsNullOrEmpty(Order.DescuentoTotal) == false)
+                if (Order.DescuentoTotal.HasValue)
                 {
                     SapOrder.UserFields.Add(new HitchSapB1Lib.Objects.UserField
                     {
@@ -889,7 +889,7 @@ namespace HitchAtmApi.Lib
                     });
                 }
 
-                if (string.IsNullOrEmpty(Order.DescuentoTotal) == false)
+                if (Order.DescuentoTotal.HasValue)
                 {
                     SapOrder.UserFields.Add(new HitchSapB1Lib.Objects.UserField
                     {
