@@ -1,0 +1,393 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>HitchAtmApi</name>
+    </assembly>
+    <members>
+        <member name="M:HitchAtmApi.Controllers.CustomersController.GetCustomer(HitchAtmApi.ViewModel.CustomerInput)">
+            <summary>
+            Metodo para obtener datos basicos de un socio de negocio
+            </summary>
+            <response code="200">Datos del socio de negocio</response>
+            <response code="404">No se encontro el socio de negocio</response>
+            <response code="500">Ocurrio un error y no es posible obtener los datos</response>
+            <param name="input">Rut del socio de negocio</param>
+        </member>
+        <member name="M:HitchAtmApi.Controllers.EquipmentCardsController.UpdateCard(HitchAtmApi.ViewModel.CardInput)">
+            <summary>
+            Metodo para actualizar una tarjeta de equipo
+            </summary>
+            <response code="200">Tarjeta de equipo actualizada</response>
+            <response code="500">Ocurrio un error y no es posible actualizar la tarjeta</response>
+            <param name="input">Codigo de la tarjeta y datos a modificar</param>
+        </member>
+        <member name="M:HitchAtmApi.Controllers.ProductsController.GetProducts(HitchAtmApi.ViewModel.ProductInput)">
+            <summary>
+            Metodo para obtener datos basicos de un articulo
+            </summary>
+            <response code="200">Datos del articulo</response>
+            <response code="404">No se encontro el articulo</response>
+            <response code="500">Ocurrio un error y no es posible obtener los datos</response>
+            <param name="input">Codigo del articulo</param>
+        </member>
+        <member name="M:HitchAtmApi.Controllers.PurchasesOrdersController.SavePurchaseOrder(HitchAtmApi.Models.PurchaseOrder)">
+            <summary>
+            Metodo para registrar nuevas ordenes de compra en SAP
+            </summary>
+            <response code="200">La orden de compra fue registrada correctamente</response>
+            <response code="400">Los datos de entrada no son validos</response>
+            <response code="500">Ocurrio un error y la orden de compra no puede ser registrada</response>
+            <param name="Order">Datos de la orden de compra</param>
+        </member>
+        <member name="M:HitchAtmApi.Controllers.SalesOrdersController.SaveSaleOrder(HitchAtmApi.Models.SaleOrder)">
+            <summary>
+            Metodo para registrar nuevas ordenes de venta en SAP
+            </summary>
+            <response code="200">La orden de venta fue registrada correctamente</response>
+            <response code="400">Los datos de entrada no son validos</response>
+            <response code="500">Ocurrio un error y la orden de venta no puede ser registrada</response>
+            <param name="Order">Datos de la orden de venta</param>
+        </member>
+        <member name="M:HitchAtmApi.Controllers.TransfersRequestsController.SaveTransferRequest(HitchAtmApi.Models.TransferRequest)">
+            <summary>
+            Metodo para registrar nuevas solicitudes de traslado en SAP
+            </summary>
+            <response code="200">La solicitud de traslado fue registrada correctamente</response>
+            <response code="400">Los datos de entrada no son validos</response>
+            <response code="500">Ocurrio un error y la solicitud de traslado no puede ser registrada</response>
+            <param name="Transfer">Datos de la solicitud de traslado</param>
+        </member>
+        <member name="P:HitchAtmApi.Models.Address.Street">
+            <summary>ID de la direccion</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.Address.CountryCode">
+            <summary>Codigo del pais de la direccion</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.Address.City">
+            <summary>Ciudad de la direccion</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.Address.County">
+            <summary>Comuna de la direccion</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.Address.StateCode">
+            <summary>Codigo de la region de la direccion</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.Address.Block">
+            <summary>Bloque</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.Address.Zip">
+            <summary>Codigo postal</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.Address.Building">
+            <summary>Edificio/Sala/Planta</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.Address.StreetNumber">
+            <summary>Numero de la calle de la direccion</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.Customer.CardName">
+            <summary>Nombre del socio de negocio</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.Customer.CardFName">
+            <summary>Nombre extranjero del socio de negocio</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.Customer.LicTradNum">
+            <summary>Rut del socio de negocio</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.Customer.CardCode">
+            <summary>Codigo del socio de negocio</summary>
+        </member>
+        <member name="T:HitchAtmApi.Models.PurchaseOrder">
+            <summary>Orden de compra</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.PurchaseOrder.CardCode">
+            <summary>Codigo del socio de negocio</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.PurchaseOrder.DocDate">
+            <summary>Fecha de contabilizacion</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.PurchaseOrder.DocDueDate">
+            <summary>Fecha de entrega</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.PurchaseOrder.TaxDate">
+            <summary>Fecha de documento</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.PurchaseOrder.Serie">
+            <summary>Numero de serie documento</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.PurchaseOrder.TipoSolic">
+            <summary>Campo de usuario: Tipo Solicitud</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.PurchaseOrder.FechaSalida">
+            <summary>Campo de usuario: Fecha Salida</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.PurchaseOrder.FechaLlegada">
+            <summary>Campo de usuario: Fecha Llegada</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.PurchaseOrder.NumVisitas">
+            <summary>Campo de usuario: Numero de Visitas</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.PurchaseOrder.OportVentas">
+            <summary>Campo de usuario: # Oportunidad de Venta</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.PurchaseOrder.ObsCobertura">
+            <summary>Campo de usuario: Observaciones Cobertura</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.PurchaseOrder.HoraSalidaStgo">
+            <summary>Campo de usuario: Hora Salida Santiago</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.PurchaseOrder.HoraUltimaVisita">
+            <summary>Campo de usuario: Hora ultima visita</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.PurchaseOrder.CiudadesDest">
+            <summary>Campo de usuario: Ciudades Destino</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.PurchaseOrder.OCOrigen">
+            <summary>Campo de usuario: OC Origen</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.PurchaseOrder.Discount">
+            <summary>Campo de usuario: % Descuento</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.PurchaseOrder.CodSF">
+            <summary>Codigo salesforce de la orden de compra</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.PurchaseOrder.Detail">
+            <summary>Contenido orden de compra</summary>
+        </member>
+        <member name="T:HitchAtmApi.Models.PurchaseOrderDetail">
+            <summary>Linea de contenido de orden de compra</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.PurchaseOrderDetail.ItemCode">
+            <summary>Codigo articulo</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.PurchaseOrderDetail.Quantity">
+            <summary>Cantidad articulo</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.PurchaseOrderDetail.Dim1">
+            <summary>Codigo linea</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.PurchaseOrderDetail.Dim2">
+            <summary>Codigo area</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.PurchaseOrderDetail.Dim3">
+            <summary>Codigo Unidad de negocio</summary>
+        </member>
+        <member name="T:HitchAtmApi.Models.SaleOrder">
+            <summary>Orden de venta</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.CardCode">
+            <summary>Codigo del socio de negocio</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.CNTCCode">
+            <summary>Codigo persona de contacto</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.DocDate">
+            <summary>Fecha de contabilizacion</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.DocDueDate">
+            <summary>Fecha de entrega comprometida</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.TaxDate">
+            <summary>Fecha del documento</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.Descuento">
+            <summary>Campo de usuario: % Descuento</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.Vendedor">
+            <summary>Codigo del encargado de ventas</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.ShipToCode">
+            <summary>ID direccion de despacho</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.PayToCode">
+            <summary>ID direccion de facturacion</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.PartSuply">
+            <summary>Entrega parcial (Si o No)</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.Project">
+            <summary>Campo de usuario: Zona</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.CapacitacionReq">
+            <summary>Campo de usuario: Capacitacion Requerida</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.GarantiaPactada">
+            <summary>Campo de usuario: Garantia Pactada</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.MantPreventivo">
+            <summary>Campo de usuario: Mantenimiento Preventivo</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.NumVisitasAnoGarantia">
+            <summary>Campo de usuario: # visitas x año Gar.</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.OCcliente">
+            <summary>Campo de usuario: O/C Cliente</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.DocOCCliente">
+            <summary>Campo de usuario: Orden de Compra</summary>
+            <remarks>PDF codificado en base64</remarks>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.ExistenMultas">
+            <summary>Campo de usuario: ¿Existen Multas?</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.DateOCCLiente">
+            <summary>Campo de usuario: Fecha O/C Cliente</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.DateRecepcionOC">
+            <summary>Campo de usuario: Fecha recep. O/C Cliente</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.ContactSN">
+            <summary>Campo de usuario: Contacto Socio Negocio</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.RutSN">
+            <summary>Campo de usuario: Rut Socio Negocio</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.NomSN">
+            <summary>Campo de usuario: Nombre Socio de Negocio</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.NumCotizacionProv">
+            <summary>Campo de usuario: Cotizacion Provisoria</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.CancFaltaStock">
+            <summary>Campo de usuario: Canc. x falta de stock (Si o No)</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.LeasingATM">
+            <summary>Campo de usuario: ¿Leasing ATM?</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.DirecEntregaFactura">
+            <summary>Campo de usuario: Direccion entrega Factura</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.CodSF">
+            <summary>Codigo salesforce de la orden de venta</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.Detail">
+            <summary>Contenido orden de venta</summary>
+        </member>
+        <member name="T:HitchAtmApi.Models.SaleOrderDetail">
+            <summary>Linea de contenido de orden de venta</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrderDetail.ItemCode">
+            <summary>Codigo articulo</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrderDetail.Quantity">
+            <summary>Cantidad articulo</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrderDetail.Descuento">
+            <summary>Campo de usuario: % Descuento</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrderDetail.UnitPrice">
+            <summary>Precio por unidad del articulo</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrderDetail.Almacen">
+            <summary>Almacen stock del articulo</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrderDetail.DateEntrega">
+            <summary>Fecha de entrega del articulo</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrderDetail.Vendedor">
+            <summary>NO ASIGNADO</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrderDetail.Comments">
+            <summary>NO ASIGNADO</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrderDetail.Description">
+            <summary>Descripcion del articulo</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrderDetail.IDSF">
+            <summary>ID de salesforce del articulo</summary>
+        </member>
+        <member name="T:HitchAtmApi.Models.TransferRequest">
+            <summary>Solicitud de traslado</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.TransferRequest.CardCode">
+            <summary>Codigo del socio de negocio</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.TransferRequest.Contacto">
+            <summary>Codigo persona de contacto</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.TransferRequest.DocDate">
+            <summary>Fecha de contabilizacion</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.TransferRequest.DocDueDate">
+            <summary>Fecha de vencimiento</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.TransferRequest.TaxDate">
+            <summary>Fecha de documento</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.TransferRequest.AlmacenOrigen">
+            <summary>Almacen de origen</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.TransferRequest.AlmacenDestino">
+            <summary>Almacen de destino</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.TransferRequest.SlpCode">
+            <summary>Codigo solicitante</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.TransferRequest.ImlMeno">
+            <summary>Comentario</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.TransferRequest.TipoPD">
+            <summary>Campo de usuario: Tipo</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.TransferRequest.CodeSN">
+            <summary>Campo de usuario: Codigo Cliente</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.TransferRequest.RazonSocial">
+            <summary>Campo de usuario: Razon Social</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.TransferRequest.DateStart">
+            <summary>Campo de usuario: Fecha Inicio</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.TransferRequest.DateEnd">
+            <summary>Campo de usuario: Fecha Termino</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.TransferRequest.Ubicacion">
+            <summary>Campo de usuario: Ubicacion</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.TransferRequest.Observaciones">
+            <summary>Campo de usuario: Observaciones</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.TransferRequest.NumOVSF">
+            <summary>Campo de usuario: Oportunidad de Venta</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.TransferRequest.LlamadaServ">
+            <summary>Campo de usuario: Llamada de Servicio</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.TransferRequest.Anexo">
+            <summary>Anexo</summary>
+            <remarks>PDF codificado en base64</remarks>
+        </member>
+        <member name="P:HitchAtmApi.Models.TransferRequest.CodSF">
+            <summary>Codigo salesforce solicitud de traslado</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.TransferRequest.Detail">
+            <summary>Contenido solicitud de traslado</summary>
+        </member>
+        <member name="T:HitchAtmApi.Models.TransferRequestDetail">
+            <summary>Linea de contenido de solicitud de traslado</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.TransferRequestDetail.ItemCode">
+            <summary>Codigo articulo</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.TransferRequestDetail.Almacen">
+            <summary>Almacen de origen</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.TransferRequestDetail.Quantity">
+            <summary>Cantidad articulo</summary>
+        </member>
+        <member name="P:HitchAtmApi.ViewModel.CardInput.insID">
+            <summary>Codigo de la tarjeta de equipo</summary>
+        </member>
+        <member name="P:HitchAtmApi.ViewModel.CardInput.Status">
+            <summary>Estado de la tarjeta de equipo</summary>
+        </member>
+        <member name="P:HitchAtmApi.ViewModel.CardInput.Address">
+            <summary>Datos de la direccion</summary>
+        </member>
+        <member name="P:HitchAtmApi.ViewModel.CustomerInput.LicTradNum">
+            <summary>Rut del socio de negocio</summary>
+        </member>
+        <member name="P:HitchAtmApi.ViewModel.ProductInput.ItemCode">
+            <summary>Codigo del articulo</summary>
+        </member>
+    </members>
+</doc>
