@@ -46,8 +46,27 @@ namespace HitchAtmApi.Controllers
         {
             try
             {
-                // asignar a carcode el valor de RutSn sin digito verificador
+                if (string.IsNullOrEmpty(Order.CardCode))
+                {
+                    if (string.IsNullOrEmpty(Order.RutSN))
+                    {
+                        return new HttpResponse
+                       .Error(
+                           400,
+                           "Los datos de entrada no son validos",
+                           "El valor del campo \"RutSN\" no puede estar vacio")
+                       .Send();
+                    }
 
+                    string Rut = new string(Order.RutSN.Where(char.IsDigit).ToArray());
+                    
+                    if (Rut.Length > 1)
+                    {
+                        Rut = Rut.Substring(0, Rut.Length - 1);
+                    }
+                    
+                    Order.CardCode = Rut;
+                }
                 if (string.IsNullOrEmpty(Order.CodSF))
                 {
                     return new HttpResponse
@@ -102,7 +121,6 @@ namespace HitchAtmApi.Controllers
                             "Deben indicarse uno o mas elementos en el campo \"Detail\"")
                         .Send();
                 }
-
                 if (string.IsNullOrEmpty(Order.DocumentoDespacho) == false)
                 {
                     if (Order.DocumentoDespacho != "GD" &&
@@ -144,7 +162,7 @@ namespace HitchAtmApi.Controllers
                 {
                     Values = SapService.CreateSaleOrder(Order);
                     
-                    BackgroundJob.Enqueue<IntegrationResultJob>((x) => x.IntegrationJob(Order));
+                    BackgroundJob.Enqueue<IntegrationResultJob>((x) => x.IntegrationJob(Order.CardCode, Values.Item3, Values.Item4, Values.Item5));
                 }
                 catch (Exception ex)
                 {

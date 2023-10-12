@@ -259,5 +259,23 @@ namespace HitchAtmApi.Lib
                 Content = response.Content
             };
         }
+
+        public dynamic GetSalesForceAction(string action, string Code)
+        {
+            SalesforceResponse response = GetRequest(
+                $"services/data/{Version}/sobjects/{action}/{Code}");
+
+            if (response.Status == 403)
+            {
+                throw new Exception("Se ha excedido el limite de request de Salesforce");
+            }
+
+            if (response.Status == 404)
+            {
+                return null;
+            }
+
+            return JsonConvert.DeserializeObject<dynamic>(response.Content);
+        }
     }
 }
