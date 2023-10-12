@@ -46,7 +46,7 @@ namespace HitchAtmApi.Controllers
         {
             try
             {
-                BackgroundJob.Enqueue<IntegrationResultJob>((x) => x.IntegrationJob(Order));
+                // asignar a carcode el valor de RutSn sin digito verificador
 
                 if (string.IsNullOrEmpty(Order.CodSF))
                 {
@@ -138,11 +138,13 @@ namespace HitchAtmApi.Controllers
                     Order.PartSuply = false;
                 }
 
-                Tuple<int, int> Values = null;
+                Tuple<int, int, int, string, string> Values = null;
 
                 try
                 {
                     Values = SapService.CreateSaleOrder(Order);
+                    
+                    BackgroundJob.Enqueue<IntegrationResultJob>((x) => x.IntegrationJob(Order));
                 }
                 catch (Exception ex)
                 {

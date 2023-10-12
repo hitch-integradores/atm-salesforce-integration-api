@@ -37,7 +37,7 @@ namespace HitchAtmApi.Models
 
         /// <summary>Campo de usuario: % Descuento</summary>
         [JsonProperty("DescuentoTotal")]
-        public string DescuentoTotal { get; set; }
+        public double? DescuentoTotal { get; set; }
 
         [JsonProperty("DescuentoCabecera")]
         public double? DescuentoCabecera { get; set; }

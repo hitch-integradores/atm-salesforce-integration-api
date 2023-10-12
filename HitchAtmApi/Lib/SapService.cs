@@ -22,7 +22,7 @@ namespace HitchAtmApi.Lib
             DefaultConnectionParameters = connectionParameters;
         }
 
-        public Tuple<int, int> CreateSaleOrder(HitchAtmApi.Models.SaleOrder Order)
+        public Tuple<int, int, int, string, string> CreateSaleOrder(HitchAtmApi.Models.SaleOrder Order)
         {
             using (Company company = new Company(DefaultConnectionParameters))
             {
@@ -289,7 +289,7 @@ namespace HitchAtmApi.Lib
                     });
                 }
 
-                if (string.IsNullOrEmpty(Order.DescuentoTotal) == false)
+                if (Order.DescuentoTotal.HasValue)
                 {
                     SapOrder.UserFields.Add(new HitchSapB1Lib.Objects.UserField
                     {
@@ -447,6 +447,8 @@ namespace HitchAtmApi.Lib
                             }
                         }
 
+                        // si contacto o direcciones son nulos ir a buscar datos de oportunidad
+
                         if (string.IsNullOrEmpty(Order.ContactSN) == false)
                         {
                             var createContact = new AddContactToBusinessPartner();
@@ -455,6 +457,11 @@ namespace HitchAtmApi.Lib
                             createContact.Contact = new Contact
                             {
                                 Name = Order.ContactSN,
+                                FirstName = "", // solo asignar si ContactSN es nulo
+                                LastName = "", // solo asignar si ContactSN es nulo
+                                Email = "", // solo asignar si ContactSN es nulo
+                                Phone1 = "", // solo asignar si ContactSN es nulo
+                                Title = "", // solo asignar si ContactSN es nulo
                                 Active = true
                             };
 
@@ -468,6 +475,8 @@ namespace HitchAtmApi.Lib
 
                         if (string.IsNullOrEmpty(Order.ShipToCode) == false)
                         {
+                            // generar ShipToCode con name de salesforce
+
                             dynamic shipAddressResult = company.QueryOneResult<dynamic>($"SELECT TOP 1 CONCAT(CRD1.CardCode, CRD1.AdresType, CRD1.Address) FROM CRD1 WHERE CRD1.Address = '{SapOrder.ShipToCode}' AND CRD1.CardCode = '{SapOrder.CustomerCode}' AND CRD1.AdresType = 'S'");
 
                             if (shipAddressResult == null)
@@ -524,6 +533,8 @@ namespace HitchAtmApi.Lib
 
                         if (string.IsNullOrEmpty(Order.PayToCode) == false)
                         {
+                            // generar PayToCode con name de salesforce
+
                             dynamic payAddressResult = company.QueryOneResult<dynamic>($"SELECT TOP 1 CONCAT(CRD1.CardCode, CRD1.AdresType, CRD1.Address) FROM CRD1 WHERE CRD1.Address = '{SapOrder.PayToCode}' AND CRD1.CardCode = '{SapOrder.CustomerCode}' AND CRD1.AdresType = 'B'");
 
                             if (payAddressResult == null)
@@ -603,8 +614,8 @@ namespace HitchAtmApi.Lib
                 createSaleOrderOperation.Company = company;
                 createSaleOrderOperation.Start();
 
-                return new Tuple<int, int>(createSaleOrderOperation.DocEntry.Value,
-                    createSaleOrderOperation.DocNum.Value);
+                return new Tuple<int, int, int, string, string>(createSaleOrderOperation.DocEntry.Value,
+                    createSaleOrderOperation.DocNum.Value, SapOrder.ContactCode.Value, SapOrder.ShipToCode, SapOrder.PayToCode);
             }
         }
 
@@ -889,7 +900,7 @@ namespace HitchAtmApi.Lib
                     });
                 }
 
-                if (string.IsNullOrEmpty(Order.DescuentoTotal) == false)
+                if (Order.DescuentoTotal.HasValue)
                 {
                     SapOrder.UserFields.Add(new HitchSapB1Lib.Objects.UserField
                     {

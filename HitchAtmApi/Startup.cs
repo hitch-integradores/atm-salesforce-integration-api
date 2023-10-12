@@ -76,6 +76,7 @@ namespace HitchAtmApi
 
             // Inyectar servicios y configuracion como dependencias
             services.AddSingleton(Configuration);
+            
             services.AddSingleton(new Hs2Service(sqlServerConnectionString, urlApi));
             services.AddSingleton(new LogService(connectionParameters));
             services.AddSingleton(new NotificationsService(connectionParameters));
@@ -83,6 +84,15 @@ namespace HitchAtmApi
             services.AddSingleton(new PurchasesOrdersService(connectionParameters));
             services.AddSingleton(new TransfersRequestsService(connectionParameters));
             services.AddSingleton(new SapService(sapConnectionParameters.ToConnectionParameters()));
+
+            services.AddSingleton(sp =>
+            {
+                var credentials = Configuration.GetSection("SalesforceAuth").Get<Credentials>();
+                var baseUrl = Configuration.GetValue<string>("SalesforceInstanceUrl");
+                var version = Configuration.GetValue<string>("SalesforceApiVersion");
+                var hs2Service = sp.GetRequiredService<Hs2Service>();
+                return new SalesforceApi(credentials, baseUrl, version);
+            });
 
             services.AddMvc(options =>
             {
