@@ -142,6 +142,23 @@ namespace HitchAtmApi.Lib
 
         // https://atmchile.my.salesforce.com/services/data/v45.0/sobjects/Opportunity/006Rn000001XW5NIAW
 
+        public dynamic GetSalesForceAction(string action, string Code)
+        {
+            SalesforceResponseNew response = GetRequest(
+                $"services/data/{Version}/sobjects/{action}/{Code}");
+
+            if (response.Status == 403)
+            {
+                throw new Exception("Se ha excedido el limite de request de Salesforce");
+            }
+
+            if (response.Status == 404)
+            {
+                return null;
+            }
+
+            return JsonConvert.DeserializeObject<dynamic>(response.Content);
+        }
         public void UpdateDeliveryAddress(string id, string newCode)
         {
             SalesforceResponse response = PatchRequest($"services/data/{Version}/sobjects/Direccion_de_despacho__c/{id}", new
