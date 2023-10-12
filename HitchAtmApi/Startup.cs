@@ -73,15 +73,6 @@ namespace HitchAtmApi
             services.AddSingleton(new TransfersRequestsService(connectionParameters));
             services.AddSingleton<SapService>();
 
-            services.AddSingleton(sp =>
-            {
-                var credentials = Configuration.GetSection("SalesforceAuth").Get<Credentials>();
-                var baseUrl = Configuration.GetValue<string>("SalesforceInstanceUrl");
-                var version = Configuration.GetValue<string>("SalesforceApiVersion");
-                var hs2Service = sp.GetRequiredService<Hs2Service>();
-                return new SalesforceApi(credentials, baseUrl, version);
-            });
-
             services.AddMvc(options =>
             {
                 options.EnableEndpointRouting = false;

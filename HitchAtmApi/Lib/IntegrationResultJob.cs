@@ -7,11 +7,10 @@ namespace HitchAtmApi.Lib
     public class IntegrationResultJob
     {
         private Hs2Service _Hs2Service;
-        private readonly SalesforceApi _SalesforceApi;
-        public IntegrationResultJob(Hs2Service hs2Service, SalesforceApi salesforceApiNew)
+        
+        public IntegrationResultJob(Hs2Service hs2Service)
         {
             _Hs2Service = hs2Service;
-            _SalesforceApi = salesforceApiNew;
         }
 
         public async Task IntegrationJob(string CardCode, int CNTCCode, string ShipToCode, string PayToCode)
@@ -24,15 +23,20 @@ namespace HitchAtmApi.Lib
 
         public async Task<bool> IntegrationResultAsync(string resourceName, string resourceId, string typeIntegration)
         {
+            SalesforceApi salesforceApi = new SalesforceApi(
+                                    Utils.Credentials, Utils.SalesforceInstanceUrl, Utils.SalesforceApiVersion);
+            var credentials = salesforceApi.GetCredentials(true);
+            salesforceApi.Token = credentials.Token;
+
             IntegrationResult integrationResult = await _Hs2Service.GetIntegrationResultOne(resourceName, resourceId);
-            //SI EXISTE integrationResult SE ACTUALIZA
+            
             if (integrationResult != null)
             {
                 if (string.IsNullOrEmpty(integrationResult.SalesforceId.Trim()))
                 {
                     if (typeIntegration == "CardCode" || typeIntegration == "ShipToCode" || typeIntegration == "PayToCode")
                     {
-                        var responseSalesForce = typeIntegration == "CardCode" ? _SalesforceApi.GetAccount(resourceId) : _SalesforceApi.GetDeliveryAddress(resourceId);
+                        var responseSalesForce = typeIntegration == "CardCode" ? salesforceApi.GetAccount(resourceId) : salesforceApi.GetDeliveryAddress(resourceId);
                         if (responseSalesForce != null && responseSalesForce.Id != null)
                         {
                             bool validateUpdate = await _Hs2Service.UpdateIntegrationResultSalesforceId(responseSalesForce.Id.ToString(), integrationResult.Id.ToString());
@@ -50,7 +54,7 @@ namespace HitchAtmApi.Lib
 
                     else if (typeIntegration == "CNTCCode")
                     {
-                        var responseSalesForce = _SalesforceApi.GetContact(resourceId);
+                        var responseSalesForce = salesforceApi.GetContact(resourceId);
                         if (responseSalesForce != null && responseSalesForce.records != null && responseSalesForce.records.Count > 0)
                         {
                             bool validateUpdate = await _Hs2Service.UpdateIntegrationResultSalesforceId(responseSalesForce.records[0].Id.ToString(), integrationResult.Id.ToString());
@@ -73,7 +77,7 @@ namespace HitchAtmApi.Lib
 
                 if (typeIntegration == "CardCode" || typeIntegration == "ShipToCode" || typeIntegration == "PayToCode")
                 {
-                    var responseSalesForce = typeIntegration == "CardCode" ? _SalesforceApi.GetAccount(resourceId) : _SalesforceApi.GetDeliveryAddress(resourceId);
+                    var responseSalesForce = typeIntegration == "CardCode" ? salesforceApi.GetAccount(resourceId) : salesforceApi.GetDeliveryAddress(resourceId);
                     if (responseSalesForce != null && responseSalesForce.Id != null)
                     {
                         bool validateInsert = await _Hs2Service.InsertIntegrationResult(resourceName, resourceId, responseSalesForce.Id.ToString());
@@ -93,7 +97,7 @@ namespace HitchAtmApi.Lib
 
                 else if (typeIntegration == "CNTCCode")
                 {
-                    var responseSalesForce = _SalesforceApi.GetContact(resourceId);
+                    var responseSalesForce = salesforceApi.GetContact(resourceId);
                     if (responseSalesForce != null && responseSalesForce.records != null && responseSalesForce.records.Count > 0)
                     {
                         bool validateInsert = await _Hs2Service.InsertIntegrationResult(resourceName, resourceId, responseSalesForce.records[0].Id.ToString());

@@ -83,6 +83,8 @@ namespace HitchAtmApi.Lib
 
             File.WriteAllText(Path.Combine(Program.AUTH_PATH, "credentials.json"), JsonConvert.SerializeObject(accessToken));
 
+            Token = accessToken.Token;
+
             return accessToken;
         }
 
@@ -276,6 +278,16 @@ namespace HitchAtmApi.Lib
             }
 
             return JsonConvert.DeserializeObject<dynamic>(response.Content);
+        }
+
+        public AccessToken GetCredentials(bool forceUpdate = false)
+        {
+            if (File.Exists(Path.Combine(Program.AUTH_PATH, "credentials.json")) && !forceUpdate)
+            {
+                return JsonConvert.DeserializeObject<AccessToken>(File.ReadAllText(Path.Combine(Program.AUTH_PATH, "credentials.json")));
+            }
+
+            return GetToken();
         }
     }
 }

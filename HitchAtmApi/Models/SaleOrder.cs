@@ -13,7 +13,6 @@ namespace HitchAtmApi.Models
 
         /// <summary>Codigo del socio de negocio</summary>
         [JsonProperty("CardCode")]
-        [Required]
         public string CardCode { get; set; }
 
         /// <summary>Codigo persona de contacto</summary>

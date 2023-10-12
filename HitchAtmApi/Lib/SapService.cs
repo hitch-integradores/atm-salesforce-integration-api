@@ -17,11 +17,9 @@ namespace HitchAtmApi.Lib
     public class SapService
     {
         HitchSapB1Lib.ConnectionParameters DefaultConnectionParameters;
-        private readonly SalesforceApi _salesforceApi;
 
         public SapService(
-            IConfiguration configuration,
-            SalesforceApi salesforceApi)
+            IConfiguration configuration)
         {
             SapConnectionParameters sapConnectionParameters = new SapConnectionParameters
             {
@@ -36,8 +34,6 @@ namespace HitchAtmApi.Lib
             };
 
             DefaultConnectionParameters = sapConnectionParameters.ToConnectionParameters();
-
-            _salesforceApi = salesforceApi;
         }
 
         public Tuple<int, int, int, string, string> CreateSaleOrder(HitchAtmApi.Models.SaleOrder Order)
@@ -244,15 +240,6 @@ namespace HitchAtmApi.Lib
                     });
                 }
 
-                if (string.IsNullOrEmpty(Order.ContactSN) == false)
-                {
-                    SapOrder.UserFields.Add(new HitchSapB1Lib.Objects.UserField
-                    {
-                        Name = "U_SBO_CONT",
-                        Value = Order.ContactSN
-                    });
-                }
-
                 if (string.IsNullOrEmpty(Order.RutSN) == false)
                 {
                     SapOrder.UserFields.Add(new HitchSapB1Lib.Objects.UserField
@@ -348,16 +335,23 @@ namespace HitchAtmApi.Lib
                 {
                     try
                     {
+                        SalesforceApi salesforceApi = new SalesforceApi(
+                                    Utils.Credentials, Utils.SalesforceInstanceUrl, Utils.SalesforceApiVersion);
+                        var credentials = salesforceApi.GetCredentials(true);
+                        salesforceApi.Token = credentials.Token;
+
+                        dynamic Opportunity = salesforceApi.GetSalesForceAction("Opportunity", Order.CodSF);
+                        
+                        if (Opportunity == null && Opportunity?.Id == null)
+                        {
+                            throw new Exception($"La Oportunidad con id {Order.CodSF} No existe o fue eliminada");
+                        }
+
                         dynamic customerResult = company.QueryOneResult<dynamic>($"SELECT TOP 1 CardCode FROM OCRD WHERE CardCode = '{SapOrder.CustomerCode}'");
 
                         if (customerResult == null)
                         {
-                            SalesforceApi salesforceApi = new SalesforceApi(
-                                Utils.Credentials, Utils.SalesforceInstanceUrl, Utils.SalesforceApiVersion);
-                            var credentials = GetCredentials(true);
-                            salesforceApi.Token = credentials.Token;
-
-                            dynamic customer = salesforceApi.GetAccount(SapOrder.CustomerCode);
+                            dynamic customer = salesforceApi.GetSalesForceAction("Account", Opportunity.AccountId.ToString());
 
                             if (customer == null)
                             {
@@ -465,81 +459,77 @@ namespace HitchAtmApi.Lib
                             }
                         }
 
-                        dynamic Opportunity = null;
-
-                        // si contacto o direcciones son nulos ir a buscar datos de oportunidad
-                        if (string.IsNullOrEmpty(Order.ContactSN) || string.IsNullOrEmpty(Order.ShipToCode) || string.IsNullOrEmpty(Order.PayToCode))
+                        if (string.IsNullOrEmpty(Order.ContactSN))
                         {
-                            Opportunity = _salesforceApi.GetSalesForceAction("Opportunity", Order.CodSF);
-                            if (Opportunity == null && Opportunity?.Id == null)
+                            if (Opportunity.Contacto_de_facturacion__c != null)
                             {
-                                throw new Exception($"La Oportunidad con id {Order.CodSF} No existe o fue eliminada");
+                                var createContact = new AddContactToBusinessPartner();
+                                createContact.Company = company;
+                                createContact.CardCode = Order.CardCode;
+
+                                var contactInfo = salesforceApi.GetSalesForceAction("Contact", Opportunity.Contacto_de_facturacion__c.ToString());
+
+                                if (contactInfo != null && contactInfo?.Id != null)
+                                {
+                                    createContact.Contact = new Contact
+                                    {
+                                        Name = contactInfo.Name.ToString(),
+                                        FirstName = contactInfo.FirstName == null ? "" : contactInfo.FirstName.ToString(),
+                                        LastName = contactInfo.LastName == null ? "" : contactInfo.LastName.ToString(),
+                                        Email = contactInfo.Email == null ? "" : contactInfo.Email.ToString(),
+                                        Phone1 = contactInfo.Phone == null ? "" : contactInfo.Phone.ToString(),
+                                        MobilePhone = contactInfo.MobilePhone == null ? "" : contactInfo.MobilePhone.ToString(),
+                                        Title = contactInfo.Title == null ? "" : contactInfo.Title.ToString(),
+                                        Active = true
+                                    };
+
+                                    createContact.PreExecutionHook = null;
+                                    createContact.PostExecutionHook = null;
+                                    createContact.Start();
+
+                                    SapOrder.ContactCode = createContact.ContactCode;
+
+                                    SapOrder.UserFields.Add(new HitchSapB1Lib.Objects.UserField
+                                    {
+                                        Name = "U_SBO_CONT",
+                                        Value = createContact.ContactName
+                                    });
+                                }
+                                else
+                                {
+                                    throw new ArgumentException($"No se encontró información del contacto con id {Opportunity.Contacto_de_facturacion__c.ToString()} en Salesforce");
+                                }
                             }
-                        }
-
-                        var createContact = new AddContactToBusinessPartner();
-                        createContact.Company = company;
-                        createContact.CardCode = Order.CardCode;
-
-                        if (string.IsNullOrEmpty(Order.ContactSN) == false)
-                        {
-                            createContact.Contact = new Contact
-                            {
-                                Name = Order.ContactSN,
-                                Active = true
-                            };
-
-                            createContact.PreExecutionHook = null;
-                            createContact.PostExecutionHook = null;
-                            createContact.Start();
-
-                            SapOrder.ContactCode = createContact.ContactCode;
-                            SapOrder.UserFields.Find(uf => uf.Name == "U_SBO_CONT").Value = createContact.ContactName;
                         }
                         else
                         {
-                            var contactInfo = _salesforceApi.GetSalesForceAction("Contact", Opportunity.Contacto_de_facturacion__c.ToString());
-                            
-                            if (contactInfo != null && contactInfo?.Id != null)
+                            // Order.ContactSN solo viene valor si en salesforce el contacto fue integrado desde SAP
+
+                            var contactInfo = GetContact(Order.ContactSN);
+
+                            SapOrder.UserFields.Add(new HitchSapB1Lib.Objects.UserField
                             {
-                                createContact.Contact = new Contact
-                                {
-                                    Name = contactInfo.Name,
-                                    FirstName = contactInfo.FirstName,
-                                    LastName = contactInfo.LastName,
-                                    Email = contactInfo.Email,
-                                    Phone1 = contactInfo.Phone,
-                                    MobilePhone = contactInfo.MobilePhone,
-                                    Title = contactInfo.Title,
-                                    Active = true
-                                };
-                                
-                                createContact.PreExecutionHook = null;
-                                createContact.PostExecutionHook = null;
-                                createContact.Start();
-                                
-                                SapOrder.ContactCode = createContact.ContactCode;
-                                SapOrder.UserFields.Find(uf => uf.Name == "U_SBO_CONT").Value = createContact.ContactName;
-                            }
-                            else
-                            {
-                                throw new ArgumentException($"No se encontró información del contacto con id {Opportunity.Contacto_de_facturacion__c} en Salesforce");
-                            }
+                                Name = "U_SBO_CONT",
+                                Value = contactInfo.Name
+                            });
                         }
+
+                        dynamic payAddress = null;
+                        dynamic shipAddress = null;
 
                         if (string.IsNullOrEmpty(Order.ShipToCode))
                         {
                             if (Opportunity.Direccion_de_despacho__c.ToString() != null)
                             {
-                                var shipToInfo = _salesforceApi.GetSalesForceAction("Direccion_de_despacho__c", Opportunity.Direccion_de_despacho__c.ToString());
+                                var shipToInfo = salesforceApi.GetSalesForceAction("Direccion_de_despacho__c", Opportunity.Direccion_de_despacho__c.ToString());
                                 
                                 if (shipToInfo != null && shipToInfo?.Id != null)
                                 {
-                                    Order.ShipToCode = Utils.Slug($"{Order.CardCode}S{shipToInfo.Name}");
+                                    Order.ShipToCode = Utils.Slug($"{Order.CardCode}S{shipToInfo.Name.ToString()}");
                                 }
                                 else
                                 {
-                                    throw new ArgumentException($"No se encontró información de la direccion con id {Opportunity.Direccion_de_despacho__c} en Salesforce");
+                                    throw new ArgumentException($"No se encontró información de la direccion con id {Opportunity.Direccion_de_despacho__c.ToString()} en Salesforce");
                                 }
                             }
 
@@ -551,12 +541,17 @@ namespace HitchAtmApi.Lib
 
                             if (shipAddressResult == null)
                             {
-                                SalesforceApi salesforceApi = new SalesforceApi(
-                                    Utils.Credentials, Utils.SalesforceInstanceUrl, Utils.SalesforceApiVersion);
-                                var credentials = GetCredentials(true);
-                                salesforceApi.Token = credentials.Token;
+                                dynamic __address = null;
 
-                                dynamic __address = salesforceApi.GetDeliveryAddress(Order.ShipToCode);
+                                if (shipAddress == null)
+                                {
+                                    __address = salesforceApi.GetDeliveryAddress(Order.ShipToCode) ??
+                                                salesforceApi.GetSalesForceAction("Direccion_de_despacho__c", Opportunity.Direccion_de_despacho__c.ToString());
+                                }
+                                else
+                                {
+                                    __address = shipAddress;
+                                }
 
                                 if (__address == null)
                                 {
@@ -605,34 +600,37 @@ namespace HitchAtmApi.Lib
                         {
                             if (Opportunity.Direccion_de_facturacion__c.ToString() != null)
                             {
-                                var payToInfo = _salesforceApi.GetSalesForceAction("Direccion_de_facturacion__c", Opportunity.Direccion_de_facturacion__c.ToString());
+                                payAddress = salesforceApi.GetSalesForceAction("Direccion_de_despacho__c", Opportunity.Direccion_de_facturacion__c.ToString());
                                 
-                                if (payToInfo != null && payToInfo.Id != null)
+                                if (payAddress != null && payAddress.Id != null)
                                 {
-                                    Order.PayToCode = Utils.Slug($"{Order.CardCode}B{payToInfo.Name}");
-                                    Console.WriteLine($"payToInfo CODE: {Order.PayToCode}");
+                                    Order.PayToCode = Utils.Slug($"{Order.CardCode}B{payAddress.Name.ToString()}");
                                 }
                                 else
                                 {
                                     throw new ArgumentException("No se encontró información de facturación");
                                 }
                             }
-
                         }
 
                         if (string.IsNullOrEmpty(Order.PayToCode) == false)
                         {
-
                             dynamic payAddressResult = company.QueryOneResult<dynamic>($"SELECT TOP 1 CONCAT(CRD1.CardCode, CRD1.AdresType, CRD1.Address) FROM CRD1 WHERE CRD1.Address = '{SapOrder.PayToCode}' AND CRD1.CardCode = '{SapOrder.CustomerCode}' AND CRD1.AdresType = 'B'");
 
                             if (payAddressResult == null)
                             {
-                                SalesforceApi salesforceApi = new SalesforceApi(
-                                    Utils.Credentials, Utils.SalesforceInstanceUrl, Utils.SalesforceApiVersion);
-                                var credentials = GetCredentials(true);
-                                salesforceApi.Token = credentials.Token;
+                                dynamic __address = null;
 
-                                dynamic __address = salesforceApi.GetDeliveryAddress(Order.PayToCode);
+                                if (payAddress == null)
+                                {
+                                    __address = salesforceApi.GetDeliveryAddress(Order.PayToCode) ??
+                                                salesforceApi.GetSalesForceAction("Direccion_de_despacho__c", Opportunity.Direccion_de_facturacion__c.ToString());
+                                }
+                                else
+                                {
+                                    __address = payAddress;
+                                }
+
                                 var address = new HitchSapB1Lib.Objects.Definition.Address();
 
                                 if (__address == null)
@@ -679,6 +677,8 @@ namespace HitchAtmApi.Lib
 
                         Utils.CleanAddresses(Order.CardCode, company);
 
+                        File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "log111.txt"), JsonConvert.SerializeObject(SapOrder), System.Text.Encoding.UTF8);
+
                         return new HookResult
                         {
                             Exception = null,
@@ -697,401 +697,11 @@ namespace HitchAtmApi.Lib
 
                 createSaleOrderOperation.PostExecutionHook = null;
                 createSaleOrderOperation.Company = company;
+
                 createSaleOrderOperation.Start();
 
                 return new Tuple<int, int, int, string, string>(createSaleOrderOperation.DocEntry.Value,
                     createSaleOrderOperation.DocNum.Value, SapOrder.ContactCode.Value, SapOrder.ShipToCode, SapOrder.PayToCode);
-            }
-        }
-
-        public static AccessToken GetCredentials(bool forceUpdate = false)
-        {
-            if (File.Exists(Path.Combine(Program.AUTH_PATH, "credentials.json")) && !forceUpdate)
-            {
-                return JsonConvert.DeserializeObject<AccessToken>(File.ReadAllText(Path.Combine(Program.AUTH_PATH, "credentials.json")));
-            }
-
-            SalesforceApi salesforceApi = new SalesforceApi(
-                Utils.Credentials, Utils.SalesforceInstanceUrl, Utils.SalesforceApiVersion);
-            AccessToken accessToken = salesforceApi.GetToken();
-
-            return accessToken;
-        }
-
-        public void UpdateSaleOrder(int DocEntry, HitchAtmApi.Models.SaleOrder Order)
-        {
-            using (Company company = new Company(DefaultConnectionParameters))
-            {
-                UpdateSaleOrderOperation updateSaleOrderOperation = new UpdateSaleOrderOperation();
-
-                HitchSapB1Lib.Objects.Marketing.SaleOrder SapOrder = new HitchSapB1Lib.Objects.Marketing.SaleOrder
-                {
-                    CustomerCode = Order.CardCode,
-                    DocumentDate = Order.DocDate.Value,
-                    DueDate = Order.DocDueDate.Value,
-                    TaxDate = Order.TaxDate.Value,
-                    Discount = Order.DescuentoCabecera,
-                    PayToCode = Order.PayToCode,
-                    ShipToCode = Order.ShipToCode,
-                    PaymentCondition = Order.PaymentCondition,
-                    IsPartialDelivery = Order.PartSuply.HasValue ? Order.PartSuply.Value : false,
-                    CurrencySource = CurrencySource.Customer,
-                    Comment = Order.Comments,
-                    OwnerCode = null,
-                    CustomerReferenceNumber = null,
-                    SalesEmployeeCode = Order.Vendedor,
-                    ContactCode = Order.CNTCCode,
-                    Serie = null,
-                    UserFields = new List<HitchSapB1Lib.Objects.UserField>(),
-                    Lines = Order.Detail.Select((det, i) => {
-                        double? lineDiscount = 0;
-                        double? linePrice = 0;
-
-                        if (string.IsNullOrEmpty(det.Descuento))
-                        {
-                            lineDiscount = null;
-                        }
-                        else
-                        {
-                            try
-                            {
-                                lineDiscount = Convert.ToDouble(det.Descuento);
-                            }
-                            catch (Exception)
-                            {
-                                throw new Exception($"El campo \"Descuento\" del item {i + 1} del campo \"Detail\" no es valido");
-                            }
-                        }
-
-                        try
-                        {
-                            linePrice = Convert.ToDouble(det.UnitPrice);
-                        }
-                        catch (Exception)
-                        {
-                            throw new Exception($"El campo \"UnitPrice\" del item {i + 1} del campo \"Detail\" no es valido");
-                        }
-
-                        var line = new DocumentLine
-                        {
-                            ItemCode = det.ItemCode,
-                            Quantity = det.Quantity,
-                            Discount = null,
-                            Description = det.Description,
-                            TaxCode = string.IsNullOrEmpty(det.TaxCode) ? "IVA" : Utils.TranslateTaxCode(det.TaxCode),
-                            Warehouse = det.Almacen,
-                            Price = linePrice,
-                            DeliveryDate = det.DateEntrega,
-                            Batchs = null,
-                            CurrencyCode = null,
-                            UserFields = new List<HitchSapB1Lib.Objects.UserField>(),
-                            Reference = null,
-                            Series = null,
-                            EmployeeCode = Order.Vendedor,
-                            CostingCode1 = det.Dim1,
-                            CostingCode2 = det.Dim2,
-                            CostingCode3 = det.Dim3,
-                            Project = det.Zona,
-                            ApplyCommission = true
-                        };
-
-                        if (string.IsNullOrEmpty(det.Descuento) == false)
-                        {
-                            line.UserFields.Add(new HitchSapB1Lib.Objects.UserField
-                            {
-                                Name = "U_Dscto",
-                                Value = det.Descuento
-                            });
-                        }
-
-                        return line;
-                    }).ToList()
-                };
-
-                if (string.IsNullOrEmpty(Order.CapacitacionReq) == false)
-                {
-                    SapOrder.UserFields.Add(new HitchSapB1Lib.Objects.UserField
-                    {
-                        Name = "U_SBOCR",
-                        Value = Order.CapacitacionReq
-                    });
-                }
-
-                if (string.IsNullOrEmpty(Order.InstalacionReq) == false)
-                {
-                    SapOrder.UserFields.Add(new HitchSapB1Lib.Objects.UserField
-                    {
-                        Name = "U_SBOIR",
-                        Value = Order.InstalacionReq
-                    });
-                }
-
-                if (string.IsNullOrEmpty(Order.GarantiaPactada) == false)
-                {
-                    SapOrder.UserFields.Add(new HitchSapB1Lib.Objects.UserField
-                    {
-                        Name = "U_SBOGP",
-                        Value = Order.GarantiaPactada
-                    });
-                }
-
-                if (string.IsNullOrEmpty(Order.MantPreventivo) == false)
-                {
-                    SapOrder.UserFields.Add(new HitchSapB1Lib.Objects.UserField
-                    {
-                        Name = "U_SBOMP",
-                        Value = Order.MantPreventivo
-                    });
-                }
-
-                if (Order.NumVisitasAnoGarantia.HasValue)
-                {
-                    SapOrder.UserFields.Add(new HitchSapB1Lib.Objects.UserField
-                    {
-                        Name = "U_SBON",
-                        Value = Order.NumVisitasAnoGarantia.Value
-                    });
-                }
-
-                if (Order.FechaEntrega.HasValue)
-                {
-                    SapOrder.UserFields.Add(new HitchSapB1Lib.Objects.UserField
-                    {
-                        Name = "U_SBOP",
-                        Value = Order.FechaEntrega
-                    });
-                }
-
-                if (string.IsNullOrEmpty(Order.OCcliente) == false)
-                {
-                    SapOrder.UserFields.Add(new HitchSapB1Lib.Objects.UserField
-                    {
-                        Name = "U_SBOOC1",
-                        Value = Order.OCcliente
-                    });
-                }
-
-                if (string.IsNullOrEmpty(Order.DocOCCliente) == false)
-                {
-                    string fileLocation = Utils.SavePDFAttachment(
-                        System.Guid.NewGuid().ToString() +
-                        (string.IsNullOrEmpty(Order.DocOCExt) ?
-                            ""
-                            : ("." + Order.DocOCExt.Replace(".", ""))), Order.DocOCCliente);
-
-                    SapOrder.UserFields.Add(new HitchSapB1Lib.Objects.UserField
-                    {
-                        Name = "U_SBOOCC",
-                        Value = fileLocation
-                    });
-                }
-
-                if (string.IsNullOrEmpty(Order.ExistenMultas) == false)
-                {
-                    SapOrder.UserFields.Add(new HitchSapB1Lib.Objects.UserField
-                    {
-                        Name = "U_SBOMULTA",
-                        Value = Order.ExistenMultas
-                    });
-                }
-
-                if (string.IsNullOrEmpty(Order.Project) == false)
-                {
-                    SapOrder.UserFields.Add(new HitchSapB1Lib.Objects.UserField
-                    {
-                        Name = "U_SBOZONPD",
-                        Value = Order.Project
-                    });
-                }
-
-                if (Order.DateOCCLiente.HasValue)
-                {
-                    SapOrder.UserFields.Add(new HitchSapB1Lib.Objects.UserField
-                    {
-                        Name = "U_SBOFOCC",
-                        Value = Order.DateOCCLiente.Value
-                    });
-                }
-
-                if (Order.DateRecepcionOC.HasValue)
-                {
-                    SapOrder.UserFields.Add(new HitchSapB1Lib.Objects.UserField
-                    {
-                        Name = "U_SBOFRE",
-                        Value = Order.DateRecepcionOC.Value
-                    });
-                }
-
-                if (string.IsNullOrEmpty(Order.ContactSN) == false)
-                {
-                    SapOrder.UserFields.Add(new HitchSapB1Lib.Objects.UserField
-                    {
-                        Name = "U_SBO_CONT",
-                        Value = Order.ContactSN
-                    });
-                }
-
-                if (string.IsNullOrEmpty(Order.RutSN) == false)
-                {
-                    SapOrder.UserFields.Add(new HitchSapB1Lib.Objects.UserField
-                    {
-                        Name = "U_SBORUT",
-                        Value = Order.RutSN
-                    });
-                }
-
-                if (string.IsNullOrEmpty(Order.NomSN) == false)
-                {
-                    SapOrder.UserFields.Add(new HitchSapB1Lib.Objects.UserField
-                    {
-                        Name = "U_SBONOMSN",
-                        Value = Order.NomSN
-                    });
-                }
-
-                if (string.IsNullOrEmpty(Order.NumCotizacionProv) == false)
-                {
-                    SapOrder.UserFields.Add(new HitchSapB1Lib.Objects.UserField
-                    {
-                        Name = "U_SBOCOTPROV",
-                        Value = Order.NumCotizacionProv
-                    });
-                }
-
-                if (Order.CancFaltaStock.HasValue)
-                {
-                    SapOrder.UserFields.Add(new HitchSapB1Lib.Objects.UserField
-                    {
-                        Name = "U_SBOCFE",
-                        Value = Order.CancFaltaStock.Value ? "S" : "N"
-                    });
-                }
-
-                if (Order.LeasingATM.HasValue)
-                {
-                    SapOrder.UserFields.Add(new HitchSapB1Lib.Objects.UserField
-                    {
-                        Name = "U_TIPOVTA",
-                        Value = Order.LeasingATM.Value ? 1 : 0
-                    });
-                }
-
-                if (string.IsNullOrEmpty(Order.DirecEntregaFactura) == false)
-                {
-                    SapOrder.UserFields.Add(new HitchSapB1Lib.Objects.UserField
-                    {
-                        Name = "U_SBODIRENTFACT",
-                        Value = Order.DirecEntregaFactura
-                    });
-                }
-
-                if (Order.DescuentoTotal.HasValue)
-                {
-                    SapOrder.UserFields.Add(new HitchSapB1Lib.Objects.UserField
-                    {
-                        Name = "U_DsctItmT",
-                        Value = Order.DescuentoTotal
-                    });
-                }
-
-                updateSaleOrderOperation.SaleOrder = SapOrder;
-                updateSaleOrderOperation.DocEntry = DocEntry;
-
-                updateSaleOrderOperation.PreExecutionHook = () =>
-                {
-                    try
-                    {
-                        if (Order.Vendedor.HasValue)
-                        {
-                            dynamic result = company.QueryOneResult<dynamic>($"SELECT TOP 1 OHEM.empID FROM OHEM WHERE OHEM.salesPrson = {Order.Vendedor.Value}");
-
-                            if (result != null)
-                            {
-                                SapOrder.OwnerCode = Convert.ToInt32(result.empID);
-
-                                if (SapOrder.OwnerCode == 0)
-                                {
-                                    SapOrder.OwnerCode = null;
-                                }
-                            }
-                        }
-
-                        if (string.IsNullOrEmpty(Order.ContactSN) == false)
-                        {
-                            var createContact = new AddContactToBusinessPartner();
-                            createContact.Company = company;
-                            createContact.CardCode = Order.CardCode;
-                            createContact.Contact = new Contact
-                            {
-                                Name = Order.ContactSN,
-                                Active = true
-                            };
-
-                            createContact.PreExecutionHook = null;
-                            createContact.PostExecutionHook = null;
-                            createContact.Start();
-
-                            SapOrder.ContactCode = createContact.ContactCode;
-                            SapOrder.UserFields.Find(uf => uf.Name == "U_SBO_CONT").Value = createContact.ContactName;
-                        }
-
-                        if (string.IsNullOrEmpty(Order.ShipToCode) == false)
-                        {
-                            var createAddress = new AddAddressToBusinessPartner();
-                            createAddress.Company = company;
-                            createAddress.CardCode = Order.CardCode;
-                            createAddress.Address = new HitchSapB1Lib.Objects.Definition.Address
-                            {
-                                AddressCode = Order.ShipToCode.Length > 50 ? Order.ShipToCode.Substring(0, 50) : Order.ShipToCode,
-                                Street = Order.ShipToCode,
-                                Type = AddressType.Ship
-                            };
-
-                            createAddress.PreExecutionHook = null;
-                            createAddress.PostExecutionHook = null;
-                            createAddress.Start();
-
-                            SapOrder.ShipToCode = createAddress.AddressCode;
-                        }
-
-                        if (string.IsNullOrEmpty(Order.PayToCode) == false)
-                        {
-                            var createAddress = new AddAddressToBusinessPartner();
-                            createAddress.Company = company;
-                            createAddress.CardCode = Order.CardCode;
-                            createAddress.Address = new HitchSapB1Lib.Objects.Definition.Address
-                            {
-                                AddressCode = Order.PayToCode.Length > 50 ? Order.PayToCode.Substring(0, 50) : Order.PayToCode,
-                                Street = Order.PayToCode,
-                                Type = AddressType.Pay
-                            };
-
-                            createAddress.PreExecutionHook = null;
-                            createAddress.PostExecutionHook = null;
-                            createAddress.Start();
-
-                            SapOrder.PayToCode = createAddress.AddressCode;
-                        }
-
-                        return new HookResult
-                        {
-                            Exception = null,
-                            Result = SapOrder
-                        };
-                    }
-                    catch (Exception ex)
-                    {
-                        return new HookResult
-                        {
-                            Exception = ex,
-                            Result = null
-                        };
-                    }
-                };
-
-                updateSaleOrderOperation.PostExecutionHook = null;
-                updateSaleOrderOperation.Company = company;
-                updateSaleOrderOperation.Start();
             }
         }
 
@@ -1740,6 +1350,15 @@ namespace HitchAtmApi.Lib
                 return company.QueryOneResult<Customer>(string.Format(
                     @"SELECT T0.CardCode, T0.CardName, T0.CardFName, T0.LicTradNum FROM OCRD T0
                     WHERE T0.LicTradNum = '{0}' AND T0.CardType = 'C'", LicTradeNum));
+            }
+        }
+
+        public ContactIdentification GetContact(string contactCode)
+        {
+            using (Company company = new Company(DefaultConnectionParameters))
+            {
+                return company.QueryOneResult<ContactIdentification>(string.Format(
+                     "SELECT T0.CntctCode, T0.Name FROM OCPR T0 WHERE T0.CntctCode = {0}", contactCode));
             }
         }
 

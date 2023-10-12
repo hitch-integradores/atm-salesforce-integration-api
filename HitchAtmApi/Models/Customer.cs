@@ -20,4 +20,13 @@ namespace HitchAtmApi.Models
         [JsonProperty("CardCode")]
         public string CardCode { get; set; }
     }
+
+    public class ContactIdentification
+    {
+        [JsonProperty("CntctCode")]
+        public int CntctCode { get; set; }
+
+        [JsonProperty("Name")]
+        public string Name { get; set; }
+    }
 }

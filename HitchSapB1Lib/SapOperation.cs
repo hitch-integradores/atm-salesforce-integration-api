@@ -1177,7 +1177,7 @@ namespace HitchSapB1Lib
                     }
 
                     SAPbobsCOM.Recordset SapRecordSet = SapCompany.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset) as SAPbobsCOM.Recordset;
-                    SapRecordSet.DoQuery($"SELECT T0.CntctCode, T0.Name FROM OCPR T0 WHERE T0.CntctCode = {Contact.Name}");
+                    SapRecordSet.DoQuery($"SELECT T0.CntctCode, T0.Name FROM OCPR T0 WHERE T0.Name = '{Contact.Name}'");
 
                     if (SapRecordSet.RecordCount > 0)
                     {
