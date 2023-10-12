@@ -9,6 +9,7 @@ using System;
 using Swashbuckle.AspNetCore.Filters;
 using Hangfire;
 using Hangfire.PostgreSql;
+using System.Data.SqlClient;
 
 namespace HitchAtmApi
 {
@@ -59,13 +60,10 @@ namespace HitchAtmApi
                 Password = Configuration.GetValue<string>("Database:Password")
             };
 
-            string sqlServerConnectionString = Configuration.GetValue<string>("SqlServerConnection");
-            string urlApi = Configuration.GetValue<string>("UrlApi");
-
             // Inyectar servicios y configuracion como dependencias
             services.AddSingleton(Configuration);
             
-            services.AddSingleton(new Hs2Service(sqlServerConnectionString, urlApi));
+            services.AddSingleton<Hs2Service>();
             services.AddSingleton(new LogService(connectionParameters));
             services.AddSingleton(new NotificationsService(connectionParameters));
             services.AddSingleton(new SalesOrdersService(connectionParameters));

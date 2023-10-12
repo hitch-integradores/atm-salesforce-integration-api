@@ -32,7 +32,7 @@ namespace HitchAtmApi.Lib
             
             if (integrationResult != null)
             {
-                if (string.IsNullOrEmpty(integrationResult.SalesforceId.Trim()))
+                if (string.IsNullOrEmpty(integrationResult.SalesforceId))
                 {
                     if (typeIntegration == "CardCode" || typeIntegration == "ShipToCode" || typeIntegration == "PayToCode")
                     {
@@ -74,7 +74,6 @@ namespace HitchAtmApi.Lib
             //SI NO EXISTE integrationResult SE CREA
             else
             {
-
                 if (typeIntegration == "CardCode" || typeIntegration == "ShipToCode" || typeIntegration == "PayToCode")
                 {
                     var responseSalesForce = typeIntegration == "CardCode" ? salesforceApi.GetAccount(resourceId) : salesforceApi.GetDeliveryAddress(resourceId);

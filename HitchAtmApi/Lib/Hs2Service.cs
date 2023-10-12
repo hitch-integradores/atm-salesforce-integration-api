@@ -3,20 +3,20 @@ using System.Threading.Tasks;
 using System.Data.SqlClient;
 using HitchAtmApi.Models;
 using RestSharp;
+using Microsoft.Extensions.Configuration;
 
 namespace HitchAtmApi.Lib
 {
     public class Hs2Service
     {
-        string _sqlServerConnectionString; // Cadena de conexión de SQL Server
-        string _urlApi;
+        private readonly string _sqlServerConnectionString; // Cadena de conexión de SQL Server
+        private readonly string _urlApi;
 
         public Hs2Service(
-            string sqlServerConnectionString,
-            string urlApi)
+            IConfiguration configuration)
         {
-            _sqlServerConnectionString = sqlServerConnectionString;
-            _urlApi = urlApi;
+            _sqlServerConnectionString = configuration.GetValue<string>("SqlServerConnection");
+            _urlApi = configuration.GetValue<string>("UrlApi");
         }
         
         async public Task<IntegrationResult> GetIntegrationResultOne(string resourceName, string resourceId)

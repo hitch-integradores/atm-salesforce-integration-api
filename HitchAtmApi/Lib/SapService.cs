@@ -299,7 +299,7 @@ namespace HitchAtmApi.Lib
                     SapOrder.UserFields.Add(new HitchSapB1Lib.Objects.UserField
                     {
                         Name = "U_DsctItmT",
-                        Value = Order.DescuentoTotal
+                        Value = (Order.DescuentoTotal.ToString()) + " %"
                     });
                 }
 
@@ -537,7 +537,7 @@ namespace HitchAtmApi.Lib
 
                         if (string.IsNullOrEmpty(Order.ShipToCode) == false)
                         {
-                            dynamic shipAddressResult = company.QueryOneResult<dynamic>($"SELECT TOP 1 CONCAT(CRD1.CardCode, CRD1.AdresType, CRD1.Address) FROM CRD1 WHERE CRD1.Address = '{SapOrder.ShipToCode}' AND CRD1.CardCode = '{SapOrder.CustomerCode}' AND CRD1.AdresType = 'S'");
+                            dynamic shipAddressResult = company.QueryOneResult<dynamic>($"SELECT TOP 1 CONCAT(CRD1.CardCode, CRD1.AdresType, CRD1.Address) FROM CRD1 WHERE CRD1.Address = '{Order.ShipToCode}' AND CRD1.CardCode = '{SapOrder.CustomerCode}' AND CRD1.AdresType = 'S'");
 
                             if (shipAddressResult == null)
                             {
@@ -615,7 +615,7 @@ namespace HitchAtmApi.Lib
 
                         if (string.IsNullOrEmpty(Order.PayToCode) == false)
                         {
-                            dynamic payAddressResult = company.QueryOneResult<dynamic>($"SELECT TOP 1 CONCAT(CRD1.CardCode, CRD1.AdresType, CRD1.Address) FROM CRD1 WHERE CRD1.Address = '{SapOrder.PayToCode}' AND CRD1.CardCode = '{SapOrder.CustomerCode}' AND CRD1.AdresType = 'B'");
+                            dynamic payAddressResult = company.QueryOneResult<dynamic>($"SELECT TOP 1 CONCAT(CRD1.CardCode, CRD1.AdresType, CRD1.Address) FROM CRD1 WHERE CRD1.Address = '{Order.PayToCode}' AND CRD1.CardCode = '{SapOrder.CustomerCode}' AND CRD1.AdresType = 'B'");
 
                             if (payAddressResult == null)
                             {
@@ -676,8 +676,6 @@ namespace HitchAtmApi.Lib
                         }
 
                         Utils.CleanAddresses(Order.CardCode, company);
-
-                        File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "log111.txt"), JsonConvert.SerializeObject(SapOrder), System.Text.Encoding.UTF8);
 
                         return new HookResult
                         {
