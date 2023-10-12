@@ -10,16 +10,34 @@ using HitchSapB1Lib.Objects.Marketing;
 using HitchSapB1Lib.Objects.Definition;
 using HitchSapB1Lib.Objects.Inventory;
 using Newtonsoft.Json;
+using Microsoft.Extensions.Configuration;
 
 namespace HitchAtmApi.Lib
 {
     public class SapService
     {
         HitchSapB1Lib.ConnectionParameters DefaultConnectionParameters;
+        private readonly SalesforceApi _salesforceApi;
 
-        public SapService(HitchSapB1Lib.ConnectionParameters connectionParameters)
+        public SapService(
+            IConfiguration configuration,
+            SalesforceApi salesforceApi)
         {
-            DefaultConnectionParameters = connectionParameters;
+            SapConnectionParameters sapConnectionParameters = new SapConnectionParameters
+            {
+                DatabaseType = configuration.GetValue<string>("Sap:DatabaseType"),
+                License = configuration.GetValue<string>("Sap:License"),
+                Password = configuration.GetValue<string>("Sap:Password"),
+                Server = configuration.GetValue<string>("Sap:Server"),
+                ServerDatabase = configuration.GetValue<string>("Sap:ServerDatabase"),
+                ServerPassword = configuration.GetValue<string>("Sap:ServerPassword"),
+                ServerUser = configuration.GetValue<string>("Sap:ServerUser"),
+                Username = configuration.GetValue<string>("Sap:Username")
+            };
+
+            DefaultConnectionParameters = sapConnectionParameters.ToConnectionParameters();
+
+            _salesforceApi = salesforceApi;
         }
 
         public Tuple<int, int, int, string, string> CreateSaleOrder(HitchAtmApi.Models.SaleOrder Order)
@@ -447,21 +465,27 @@ namespace HitchAtmApi.Lib
                             }
                         }
 
+                        dynamic Opportunity = null;
+
                         // si contacto o direcciones son nulos ir a buscar datos de oportunidad
+                        if (string.IsNullOrEmpty(Order.ContactSN) || string.IsNullOrEmpty(Order.ShipToCode) || string.IsNullOrEmpty(Order.PayToCode))
+                        {
+                            Opportunity = _salesforceApi.GetSalesForceAction("Opportunity", Order.CodSF);
+                            if (Opportunity == null && Opportunity?.Id == null)
+                            {
+                                throw new Exception($"La Oportunidad con id {Order.CodSF} No existe o fue eliminada");
+                            }
+                        }
+
+                        var createContact = new AddContactToBusinessPartner();
+                        createContact.Company = company;
+                        createContact.CardCode = Order.CardCode;
 
                         if (string.IsNullOrEmpty(Order.ContactSN) == false)
                         {
-                            var createContact = new AddContactToBusinessPartner();
-                            createContact.Company = company;
-                            createContact.CardCode = Order.CardCode;
                             createContact.Contact = new Contact
                             {
                                 Name = Order.ContactSN,
-                                FirstName = "", // solo asignar si ContactSN es nulo
-                                LastName = "", // solo asignar si ContactSN es nulo
-                                Email = "", // solo asignar si ContactSN es nulo
-                                Phone1 = "", // solo asignar si ContactSN es nulo
-                                Title = "", // solo asignar si ContactSN es nulo
                                 Active = true
                             };
 
@@ -472,11 +496,57 @@ namespace HitchAtmApi.Lib
                             SapOrder.ContactCode = createContact.ContactCode;
                             SapOrder.UserFields.Find(uf => uf.Name == "U_SBO_CONT").Value = createContact.ContactName;
                         }
+                        else
+                        {
+                            var contactInfo = _salesforceApi.GetSalesForceAction("Contact", Opportunity.Contacto_de_facturacion__c.ToString());
+                            
+                            if (contactInfo != null && contactInfo?.Id != null)
+                            {
+                                createContact.Contact = new Contact
+                                {
+                                    Name = contactInfo.Name,
+                                    FirstName = contactInfo.FirstName,
+                                    LastName = contactInfo.LastName,
+                                    Email = contactInfo.Email,
+                                    Phone1 = contactInfo.Phone,
+                                    MobilePhone = contactInfo.MobilePhone,
+                                    Title = contactInfo.Title,
+                                    Active = true
+                                };
+                                
+                                createContact.PreExecutionHook = null;
+                                createContact.PostExecutionHook = null;
+                                createContact.Start();
+                                
+                                SapOrder.ContactCode = createContact.ContactCode;
+                                SapOrder.UserFields.Find(uf => uf.Name == "U_SBO_CONT").Value = createContact.ContactName;
+                            }
+                            else
+                            {
+                                throw new ArgumentException($"No se encontró información del contacto con id {Opportunity.Contacto_de_facturacion__c} en Salesforce");
+                            }
+                        }
+
+                        if (string.IsNullOrEmpty(Order.ShipToCode))
+                        {
+                            if (Opportunity.Direccion_de_despacho__c.ToString() != null)
+                            {
+                                var shipToInfo = _salesforceApi.GetSalesForceAction("Direccion_de_despacho__c", Opportunity.Direccion_de_despacho__c.ToString());
+                                
+                                if (shipToInfo != null && shipToInfo?.Id != null)
+                                {
+                                    Order.ShipToCode = Utils.Slug($"{Order.CardCode}S{shipToInfo.Name}");
+                                }
+                                else
+                                {
+                                    throw new ArgumentException($"No se encontró información de la direccion con id {Opportunity.Direccion_de_despacho__c} en Salesforce");
+                                }
+                            }
+
+                        }
 
                         if (string.IsNullOrEmpty(Order.ShipToCode) == false)
                         {
-                            // generar ShipToCode con name de salesforce
-
                             dynamic shipAddressResult = company.QueryOneResult<dynamic>($"SELECT TOP 1 CONCAT(CRD1.CardCode, CRD1.AdresType, CRD1.Address) FROM CRD1 WHERE CRD1.Address = '{SapOrder.ShipToCode}' AND CRD1.CardCode = '{SapOrder.CustomerCode}' AND CRD1.AdresType = 'S'");
 
                             if (shipAddressResult == null)
@@ -526,14 +596,32 @@ namespace HitchAtmApi.Lib
                                 }
 
                                 createAddress.Start();
-                                
+
                                 SapOrder.ShipToCode = createAddress.Address.AddressCode;
                             }
                         }
 
+                        if (string.IsNullOrEmpty(Order.PayToCode))
+                        {
+                            if (Opportunity.Direccion_de_facturacion__c.ToString() != null)
+                            {
+                                var payToInfo = _salesforceApi.GetSalesForceAction("Direccion_de_facturacion__c", Opportunity.Direccion_de_facturacion__c.ToString());
+                                
+                                if (payToInfo != null && payToInfo.Id != null)
+                                {
+                                    Order.PayToCode = Utils.Slug($"{Order.CardCode}B{payToInfo.Name}");
+                                    Console.WriteLine($"payToInfo CODE: {Order.PayToCode}");
+                                }
+                                else
+                                {
+                                    throw new ArgumentException("No se encontró información de facturación");
+                                }
+                            }
+
+                        }
+
                         if (string.IsNullOrEmpty(Order.PayToCode) == false)
                         {
-                            // generar PayToCode con name de salesforce
 
                             dynamic payAddressResult = company.QueryOneResult<dynamic>($"SELECT TOP 1 CONCAT(CRD1.CardCode, CRD1.AdresType, CRD1.Address) FROM CRD1 WHERE CRD1.Address = '{SapOrder.PayToCode}' AND CRD1.CardCode = '{SapOrder.CustomerCode}' AND CRD1.AdresType = 'B'");
 
@@ -543,9 +631,6 @@ namespace HitchAtmApi.Lib
                                     Utils.Credentials, Utils.SalesforceInstanceUrl, Utils.SalesforceApiVersion);
                                 var credentials = GetCredentials(true);
                                 salesforceApi.Token = credentials.Token;
-
-                                /*SalesforceResponse addressResponses = salesforceApi.GetDeliveryAddressAllData(SapOrder.PayToCode);
-                                HitchSapB1Lib.Objects.Definition.Address address = ExtractResponseAddressData(addressResponses);*/
 
                                 dynamic __address = salesforceApi.GetDeliveryAddress(Order.PayToCode);
                                 var address = new HitchSapB1Lib.Objects.Definition.Address();
@@ -911,7 +996,7 @@ namespace HitchAtmApi.Lib
 
                 updateSaleOrderOperation.SaleOrder = SapOrder;
                 updateSaleOrderOperation.DocEntry = DocEntry;
-                
+
                 updateSaleOrderOperation.PreExecutionHook = () =>
                 {
                     try

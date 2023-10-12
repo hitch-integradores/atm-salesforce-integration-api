@@ -59,18 +59,6 @@ namespace HitchAtmApi
                 Password = Configuration.GetValue<string>("Database:Password")
             };
 
-            SapConnectionParameters sapConnectionParameters = new SapConnectionParameters
-            {
-                DatabaseType = Configuration.GetValue<string>("Sap:DatabaseType"),
-                License = Configuration.GetValue<string>("Sap:License"),
-                Password = Configuration.GetValue<string>("Sap:Password"),
-                Server = Configuration.GetValue<string>("Sap:Server"),
-                ServerDatabase = Configuration.GetValue<string>("Sap:ServerDatabase"),
-                ServerPassword = Configuration.GetValue<string>("Sap:ServerPassword"),
-                ServerUser = Configuration.GetValue<string>("Sap:ServerUser"),
-                Username = Configuration.GetValue<string>("Sap:Username")
-            };
-
             string sqlServerConnectionString = Configuration.GetValue<string>("SqlServerConnection");
             string urlApi = Configuration.GetValue<string>("UrlApi");
 
@@ -83,7 +71,7 @@ namespace HitchAtmApi
             services.AddSingleton(new SalesOrdersService(connectionParameters));
             services.AddSingleton(new PurchasesOrdersService(connectionParameters));
             services.AddSingleton(new TransfersRequestsService(connectionParameters));
-            services.AddSingleton(new SapService(sapConnectionParameters.ToConnectionParameters()));
+            services.AddSingleton<SapService>();
 
             services.AddSingleton(sp =>
             {

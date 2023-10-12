@@ -14,12 +14,12 @@ namespace HitchAtmApi.Lib
             _SalesforceApi = salesforceApiNew;
         }
 
-        public async Task IntegrationJob(SaleOrder Order)
+        public async Task IntegrationJob(string CardCode, int CNTCCode, string ShipToCode, string PayToCode)
         {
-            await IntegrationResultAsync("BusinessAccount", Order.CardCode, "CardCode");
-            await IntegrationResultAsync("Contact", Order.CNTCCode.ToString(), "CNTCCode");
-            await IntegrationResultAsync("DeliveryAddress", Order.ShipToCode.ToString(), "ShipToCode");
-            await IntegrationResultAsync("DeliveryAddress", Order.PayToCode.ToString(), "PayToCode");
+            await IntegrationResultAsync("BusinessAccount", CardCode, "CardCode");
+            await IntegrationResultAsync("Contact", CNTCCode.ToString(), "CNTCCode");
+            await IntegrationResultAsync("DeliveryAddress", ShipToCode.ToString(), "ShipToCode");
+            await IntegrationResultAsync("DeliveryAddress", PayToCode.ToString(), "PayToCode");
         }
 
         public async Task<bool> IntegrationResultAsync(string resourceName, string resourceId, string typeIntegration)
