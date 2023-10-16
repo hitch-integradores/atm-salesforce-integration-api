@@ -4,7 +4,7 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>C:\Users\elias\development\hitch-projects\HitchAtmApi\HitchAtmApi\HitchAtmApi.xml</DocumentationFile>
+    <DocumentationFile>C:\xampp\htdocs\atm-salesforce-integration-api\HitchAtmApi\HitchAtmApi.xml</DocumentationFile>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <WarningsAsErrors />
   </PropertyGroup>

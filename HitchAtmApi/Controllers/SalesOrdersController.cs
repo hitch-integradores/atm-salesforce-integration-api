@@ -59,12 +59,12 @@ namespace HitchAtmApi.Controllers
                     }
 
                     string Rut = new string(Order.RutSN.Where(char.IsDigit).ToArray());
-                    
+
                     if (Rut.Length > 1)
                     {
                         Rut = Rut.Substring(0, Rut.Length - 1);
                     }
-                    
+
                     Order.CardCode = Rut;
                 }
                 if (string.IsNullOrEmpty(Order.CodSF))
@@ -150,19 +150,19 @@ namespace HitchAtmApi.Controllers
                         .Send();
                     }
                 }
-                
+
                 if (Order.PartSuply.HasValue == false)
                 {
                     Order.PartSuply = false;
                 }
 
-                Tuple<int, int, int, string, string> Values = null;
+                SapResponse sapResponse; 
 
                 try
                 {
-                    Values = SapService.CreateSaleOrder(Order);
-                    
-                    BackgroundJob.Enqueue<IntegrationResultJob>((x) => x.IntegrationJob(Order.CardCode, Values.Item3, Values.Item4, Values.Item5));
+                    sapResponse = SapService.CreateSaleOrder(Order);
+
+                    BackgroundJob.Enqueue<IntegrationResultJob>((x) => x.IntegrationJob(sapResponse));
                 }
                 catch (Exception ex)
                 {
@@ -173,7 +173,7 @@ namespace HitchAtmApi.Controllers
 
                 return new HttpResponse.Response<int>
                 {
-                    Data = Values.Item2,
+                    Data = sapResponse.DocNum,
                     Error = null,
                     Status = 200,
                     Message = "Numero documento orden de venta en SAP"

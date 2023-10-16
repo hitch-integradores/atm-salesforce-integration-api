@@ -142,8 +142,6 @@ namespace HitchAtmApi.Lib
             return JsonConvert.DeserializeObject<dynamic>(response.Content);
         }
 
-        // https://atmchile.my.salesforce.com/services/data/v45.0/sobjects/Opportunity/006Rn000001XW5NIAW
-
         public void UpdateDeliveryAddress(string id, string newCode)
         {
             SalesforceResponse response = PatchRequest($"services/data/{Version}/sobjects/Direccion_de_despacho__c/{id}", new
@@ -278,6 +276,42 @@ namespace HitchAtmApi.Lib
             }
 
             return JsonConvert.DeserializeObject<dynamic>(response.Content);
+        }
+
+        public void UpdateCodeSapSalesForce(string id, string Code)
+        {
+            SalesforceResponse response = PatchRequest($"services/data/{Version}/sobjects/Account/{id}", new
+            {
+                Codigo_SAP__c = Code
+            });
+
+            if (response.Status == 403)
+            {
+                throw new Exception("Se ha excedido el limite de request de Salesforce");
+            }
+
+            if (response.Status != 204)
+            {
+                throw new Exception($"No fue posible actualizar el Codigo_SAP__c de la cuenta en salesforce. Error: {response.Content}");
+            }
+        }
+
+        public void UpdateContactSalesForce(string id, string newCode)
+        {
+            SalesforceResponse response = PatchRequest($"services/data/{Version}/sobjects/Contact/{id}", new
+            {
+                Id_externo__c = newCode
+            });
+
+            if (response.Status == 403)
+            {
+                throw new Exception("Se ha excedido el limite de request de Salesforce");
+            }
+
+            if (response.Status != 204)
+            {
+                throw new Exception($"No fue posible actualizar el id externo de la direccion en salesforce. Error: {response.Content}");
+            }
         }
 
         public AccessToken GetCredentials(bool forceUpdate = false)

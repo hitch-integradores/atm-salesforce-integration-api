@@ -102,6 +102,9 @@
         <member name="P:HitchAtmApi.Models.PurchaseOrder.CardCode">
             <summary>Codigo del socio de negocio</summary>
         </member>
+        <member name="P:HitchAtmApi.Models.PurchaseOrder.SlpCode">
+            <summary>Codigo propietario</summary>
+        </member>
         <member name="P:HitchAtmApi.Models.PurchaseOrder.DocDate">
             <summary>Fecha de contabilizacion</summary>
         </member>
@@ -150,6 +153,15 @@
         <member name="P:HitchAtmApi.Models.PurchaseOrder.CodSF">
             <summary>Codigo salesforce de la orden de compra</summary>
         </member>
+        <member name="P:HitchAtmApi.Models.PurchaseOrder.Doc">
+            <summary>Archivo anexo de la orden de compra</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.PurchaseOrder.DocExt">
+            <summary>Extension archivo anexo de la orden de compra</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.PurchaseOrder.Comments">
+            <summary>Comentario de la orden de compra</summary>
+        </member>
         <member name="P:HitchAtmApi.Models.PurchaseOrder.Detail">
             <summary>Contenido orden de compra</summary>
         </member>
@@ -171,6 +183,12 @@
         <member name="P:HitchAtmApi.Models.PurchaseOrderDetail.Dim3">
             <summary>Codigo Unidad de negocio</summary>
         </member>
+        <member name="P:HitchAtmApi.Models.PurchaseOrderDetail.Zona">
+            <summary>Codigo Zona</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.PurchaseOrderDetail.Importe">
+            <summary>Importe</summary>
+        </member>
         <member name="T:HitchAtmApi.Models.SaleOrder">
             <summary>Orden de venta</summary>
         </member>
@@ -189,7 +207,7 @@
         <member name="P:HitchAtmApi.Models.SaleOrder.TaxDate">
             <summary>Fecha del documento</summary>
         </member>
-        <member name="P:HitchAtmApi.Models.SaleOrder.Descuento">
+        <member name="P:HitchAtmApi.Models.SaleOrder.DescuentoTotal">
             <summary>Campo de usuario: % Descuento</summary>
         </member>
         <member name="P:HitchAtmApi.Models.SaleOrder.Vendedor">
@@ -201,6 +219,18 @@
         <member name="P:HitchAtmApi.Models.SaleOrder.PayToCode">
             <summary>ID direccion de facturacion</summary>
         </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.CountyCode">
+            <summary>Codigo de la comuna</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.StateCode">
+            <summary>Codigo de la region</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.CountryCode">
+            <summary>Codigo del pais</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.PaymentCondition">
+            <summary>Codigo condicion de pago</summary>
+        </member>
         <member name="P:HitchAtmApi.Models.SaleOrder.PartSuply">
             <summary>Entrega parcial (Si o No)</summary>
         </member>
@@ -209,6 +239,9 @@
         </member>
         <member name="P:HitchAtmApi.Models.SaleOrder.CapacitacionReq">
             <summary>Campo de usuario: Capacitacion Requerida</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.InstalacionReq">
+            <summary>Campo de usuario: Instalacion Requerida</summary>
         </member>
         <member name="P:HitchAtmApi.Models.SaleOrder.GarantiaPactada">
             <summary>Campo de usuario: Garantia Pactada</summary>
@@ -226,6 +259,10 @@
             <summary>Campo de usuario: Orden de Compra</summary>
             <remarks>PDF codificado en base64</remarks>
         </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.DocOCExt">
+            <summary>Extension archivo orden de compra</summary>
+            <remarks>Extension archivo codificado en base64</remarks>
+        </member>
         <member name="P:HitchAtmApi.Models.SaleOrder.ExistenMultas">
             <summary>Campo de usuario: ¿Existen Multas?</summary>
         </member>
@@ -234,6 +271,9 @@
         </member>
         <member name="P:HitchAtmApi.Models.SaleOrder.DateRecepcionOC">
             <summary>Campo de usuario: Fecha recep. O/C Cliente</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.FechaEntrega">
+            <summary>Campo de usuario: Fecha de Entrega</summary>
         </member>
         <member name="P:HitchAtmApi.Models.SaleOrder.ContactSN">
             <summary>Campo de usuario: Contacto Socio Negocio</summary>
@@ -259,8 +299,26 @@
         <member name="P:HitchAtmApi.Models.SaleOrder.CodSF">
             <summary>Codigo salesforce de la orden de venta</summary>
         </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.Comments">
+            <summary>Comentario de la orden de venta</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.DocumentoDespacho">
+            <summary>Campo de usuario: Documento de Despacho</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.FechaProbableFacturacion">
+            <summary>Campo de usuario: Fecha Probable Facturacion</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.ExigenciaBackup">
+            <summary>Campo de usuario: ¿Exigencia de Backup?</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.IdOportunidad">
+            <summary>ID oportunidad</summary>
+        </member>
         <member name="P:HitchAtmApi.Models.SaleOrder.Detail">
             <summary>Contenido orden de venta</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrder.Attachments">
+            <summary>Archivos o adjuntos de la orden de venta</summary>
         </member>
         <member name="T:HitchAtmApi.Models.SaleOrderDetail">
             <summary>Linea de contenido de orden de venta</summary>
@@ -294,6 +352,37 @@
         </member>
         <member name="P:HitchAtmApi.Models.SaleOrderDetail.IDSF">
             <summary>ID de salesforce del articulo</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrderDetail.Dim1">
+            <summary>Codigo linea</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrderDetail.Dim2">
+            <summary>Codigo area</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrderDetail.Dim3">
+            <summary>Codigo Unidad de negocio</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrderDetail.Zona">
+            <summary>Codigo Zona</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrderDetail.TaxCode">
+            <summary>Impuesto</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrderDetail.CurrencyCode">
+            <summary>Moneda</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrderAttachment.Content">
+            <summary>Contenido del archivo</summary>
+            <remarks>archivo codificado en base64</remarks>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrderAttachment.Filename">
+            <summary>Nombre del archivo</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrderAttachment.Text">
+            <summary>Descripcion o texto indicando que es el archivo</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.SaleOrderAttachment.Date">
+            <summary>Fecha del archivo</summary>
         </member>
         <member name="T:HitchAtmApi.Models.TransferRequest">
             <summary>Solicitud de traslado</summary>
@@ -354,10 +443,17 @@
         </member>
         <member name="P:HitchAtmApi.Models.TransferRequest.Anexo">
             <summary>Anexo</summary>
-            <remarks>PDF codificado en base64</remarks>
+            <remarks>Archivo codificado en base64</remarks>
+        </member>
+        <member name="P:HitchAtmApi.Models.TransferRequest.AnexoExt">
+            <summary>Extension anexo</summary>
+            <remarks>Extension del archivo codificado en base64</remarks>
         </member>
         <member name="P:HitchAtmApi.Models.TransferRequest.CodSF">
             <summary>Codigo salesforce solicitud de traslado</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.TransferRequest.Comments">
+            <summary>Comentario de la solicitud de traslado</summary>
         </member>
         <member name="P:HitchAtmApi.Models.TransferRequest.Detail">
             <summary>Contenido solicitud de traslado</summary>
@@ -373,6 +469,18 @@
         </member>
         <member name="P:HitchAtmApi.Models.TransferRequestDetail.Quantity">
             <summary>Cantidad articulo</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.TransferRequestDetail.Dim1">
+            <summary>Codigo linea</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.TransferRequestDetail.Dim2">
+            <summary>Codigo area</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.TransferRequestDetail.Dim3">
+            <summary>Codigo Unidad de negocio</summary>
+        </member>
+        <member name="P:HitchAtmApi.Models.TransferRequestDetail.Zona">
+            <summary>Codigo Zona</summary>
         </member>
         <member name="P:HitchAtmApi.ViewModel.CardInput.insID">
             <summary>Codigo de la tarjeta de equipo</summary>

@@ -36,7 +36,7 @@ namespace HitchAtmApi.Lib
             DefaultConnectionParameters = sapConnectionParameters.ToConnectionParameters();
         }
 
-        public Tuple<int, int, int, string, string> CreateSaleOrder(HitchAtmApi.Models.SaleOrder Order)
+        public SapResponse CreateSaleOrder(HitchAtmApi.Models.SaleOrder Order)
         {
             using (Company company = new Company(DefaultConnectionParameters))
             {
@@ -61,7 +61,8 @@ namespace HitchAtmApi.Lib
                     ContactCode = Order.CNTCCode,
                     Serie = null,
                     UserFields = new List<HitchSapB1Lib.Objects.UserField>(),
-                    Lines = Order.Detail.Select((det, i) => {
+                    Lines = Order.Detail.Select((det, i) =>
+                    {
                         double? lineDiscount = 0;
                         double? linePrice = 0;
 
@@ -330,23 +331,22 @@ namespace HitchAtmApi.Lib
                     });
                 }
 
+                SalesforceApi salesforceApi = new SalesforceApi(
+                                    Utils.Credentials, Utils.SalesforceInstanceUrl, Utils.SalesforceApiVersion);
+                var credentials = salesforceApi.GetCredentials(true);
+                salesforceApi.Token = credentials.Token;
+                dynamic Opportunity = salesforceApi.GetSalesForceAction("Opportunity", Order.CodSF);
+
+                if (Opportunity == null && Opportunity?.Id == null)
+                {
+                    throw new Exception($"La Oportunidad con id {Order.CodSF} No existe o fue eliminada");
+                }
                 createSaleOrderOperation.SaleOrder = SapOrder;
                 createSaleOrderOperation.PreExecutionHook = () =>
                 {
                     try
                     {
-                        SalesforceApi salesforceApi = new SalesforceApi(
-                                    Utils.Credentials, Utils.SalesforceInstanceUrl, Utils.SalesforceApiVersion);
-                        var credentials = salesforceApi.GetCredentials(true);
-                        salesforceApi.Token = credentials.Token;
-
-                        dynamic Opportunity = salesforceApi.GetSalesForceAction("Opportunity", Order.CodSF);
-                        
-                        if (Opportunity == null && Opportunity?.Id == null)
-                        {
-                            throw new Exception($"La Oportunidad con id {Order.CodSF} No existe o fue eliminada");
-                        }
-
+       
                         dynamic customerResult = company.QueryOneResult<dynamic>($"SELECT TOP 1 CardCode FROM OCRD WHERE CardCode = '{SapOrder.CustomerCode}'");
 
                         if (customerResult == null)
@@ -357,6 +357,7 @@ namespace HitchAtmApi.Lib
                             {
                                 throw new Exception($"El cliente codigo {SapOrder.CustomerCode} no ha sido encontrado en SAP y tampoco en Salesforce");
                             }
+
 
                             int groupCode = 0;
                             dynamic groupResult = company.QueryOneResult<dynamic>($"SELECT OCRG.GroupCode FROM OCRG WHERE OCRG.GroupName = '{customer.Categoria_de_institucion__c}'");
@@ -459,6 +460,7 @@ namespace HitchAtmApi.Lib
                             }
                         }
 
+
                         if (string.IsNullOrEmpty(Order.ContactSN))
                         {
                             if (Opportunity.Contacto_de_facturacion__c != null)
@@ -514,15 +516,16 @@ namespace HitchAtmApi.Lib
                             });
                         }
 
-                        dynamic payAddress = null;
+
                         dynamic shipAddress = null;
+
 
                         if (string.IsNullOrEmpty(Order.ShipToCode))
                         {
                             if (Opportunity.Direccion_de_despacho__c.ToString() != null)
                             {
                                 var shipToInfo = salesforceApi.GetSalesForceAction("Direccion_de_despacho__c", Opportunity.Direccion_de_despacho__c.ToString());
-                                
+
                                 if (shipToInfo != null && shipToInfo?.Id != null)
                                 {
                                     Order.ShipToCode = Utils.Slug($"{Order.CardCode}S{shipToInfo.Name.ToString()}");
@@ -596,12 +599,14 @@ namespace HitchAtmApi.Lib
                             }
                         }
 
+                        dynamic payAddress = null;
+
                         if (string.IsNullOrEmpty(Order.PayToCode))
                         {
                             if (Opportunity.Direccion_de_facturacion__c.ToString() != null)
                             {
                                 payAddress = salesforceApi.GetSalesForceAction("Direccion_de_despacho__c", Opportunity.Direccion_de_facturacion__c.ToString());
-                                
+
                                 if (payAddress != null && payAddress.Id != null)
                                 {
                                     Order.PayToCode = Utils.Slug($"{Order.CardCode}B{payAddress.Name.ToString()}");
@@ -697,11 +702,23 @@ namespace HitchAtmApi.Lib
                 createSaleOrderOperation.Company = company;
 
                 createSaleOrderOperation.Start();
-
-                return new Tuple<int, int, int, string, string>(createSaleOrderOperation.DocEntry.Value,
-                    createSaleOrderOperation.DocNum.Value, SapOrder.ContactCode.Value, SapOrder.ShipToCode, SapOrder.PayToCode);
+                var responseSap = new SapResponse
+                {
+                    DocEntry = createSaleOrderOperation.DocEntry.Value,
+                    DocNum = createSaleOrderOperation.DocNum.Value,
+                    CustomerCodeSap = SapOrder.CustomerCode,
+                    CustomerCodeSalesforce = Opportunity.AccountId.ToString(),
+                    ContactCodeSap = SapOrder.ContactCode.Value,
+                    ContactCodeSalesforce = Opportunity.Contacto_de_facturacion__c?.ToString(),
+                    ShipToCodeSap = SapOrder.ShipToCode,
+                    ShipToCodeSalesforce = Opportunity.Direccion_de_despacho__c?.ToString(),
+                    PayToCodeSap = SapOrder.PayToCode,
+                    PayToCodeSalesforce = Opportunity.Direccion_de_facturacion__c?.ToString()
+                };
+                return responseSap;
             }
         }
+
 
         public Tuple<int, int> CreatePurchaseOrder(HitchAtmApi.Models.PurchaseOrder Order)
         {

@@ -22,7 +22,7 @@
       <HintPath>..\dll\x86\Interop.SAPbobsCOM.dll</HintPath>
     </Reference>
     <Reference Include="Sap.Data.Hana.v4.5">
-      <HintPath>C:\Program Files\sap\hdbclient\ado.net\v4.5\Sap.Data.Hana.v4.5.dll</HintPath>
+      <HintPath>..\dll\x86\Sap.Data.Hana.v4.5.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>
