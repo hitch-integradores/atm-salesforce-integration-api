@@ -1420,8 +1420,8 @@ namespace HitchSapB1Lib
                     if (Card.CardType.HasValue)
                     {
                         CustomerCard.ServiceBPType = Card.CardType == EquipmentCardType.Sales
-                            ? SAPbobsCOM.ServiceTypeEnum.srvcSales
-                            : SAPbobsCOM.ServiceTypeEnum.srvcPurchasing;
+                            ? SAPbobsCOM.BoEquipmentBPType.et_Sales
+                            : SAPbobsCOM.BoEquipmentBPType.et_Purchasing;
                     }
 
                     if (Card.ContactCard.HasValue)
