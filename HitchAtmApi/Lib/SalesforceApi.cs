@@ -55,12 +55,12 @@ namespace HitchAtmApi.Lib
 
             RestRequest request = new RestRequest(url, Method.Post);
             request.AddHeader("Content-Type", "application/x-www-form-urlencoded");
-            request.AddParameter(
-                "application/x-www-form-urlencoded",
-                $"grant_type={Credentials.GrantType}&client_secret={Credentials.ClientSecret}" +
-                $"&username={Credentials.Username}&password={Credentials.Password}{Credentials.Token}" +
-                $"&client_id={Credentials.ClientId}",
-                ParameterType.RequestBody);
+
+            request.AddParameter("grant_type", Credentials.GrantType);
+            request.AddParameter("client_secret", Credentials.ClientSecret);
+            request.AddParameter("username", Credentials.Username);
+            request.AddParameter("password", Credentials.Password + Credentials.Token);
+            request.AddParameter("client_id", Credentials.ClientId);
 
             RestResponse response = client.Execute(request);
 
