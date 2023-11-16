@@ -95,7 +95,7 @@ namespace HitchAtmApi.SwaggerExamples.SalesOrders.Requests
                         Description = "Nidek Pliable Cup (Red)",
                         Almacen = "001",
                         DateEntrega = DateTime.Now,
-                        Descuento = "10%",
+                        Descuento = 10,
                         UnitPrice = 10000,
                         Quantity = 12
                     }

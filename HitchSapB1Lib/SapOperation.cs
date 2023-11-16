@@ -27,6 +27,7 @@ namespace HitchSapB1Lib
             { DatabaseServerType.MSSQL2014, SAPbobsCOM.BoDataServerTypes.dst_MSSQL2014 },
             { DatabaseServerType.MSSQL2016, SAPbobsCOM.BoDataServerTypes.dst_MSSQL2016 },
             { DatabaseServerType.MSSQL2017, SAPbobsCOM.BoDataServerTypes.dst_MSSQL2017 },
+            { DatabaseServerType.MSSQL2019, SAPbobsCOM.BoDataServerTypes.dst_MSSQL2019 },
             { DatabaseServerType.HANA, SAPbobsCOM.BoDataServerTypes.dst_HANADB }
         };
 
@@ -122,7 +123,7 @@ namespace HitchSapB1Lib
                 if (!SapCompany.Connected)
                 {
                     SapCompany.Server = Company.ConnectionParameters.DatabaseServer;
-                    SapCompany.LicenseServer = Company.ConnectionParameters.LicenseServer;
+                    SapCompany.SLDServer = Company.ConnectionParameters.LicenseServer;
                     SapCompany.language = SAPbobsCOM.BoSuppLangs.ln_Spanish;
                     SapCompany.DbServerType = ServerTypes[Company.ConnectionParameters.ServerType];
                     SapCompany.DbUserName = Company.ConnectionParameters.DatabaseUser;

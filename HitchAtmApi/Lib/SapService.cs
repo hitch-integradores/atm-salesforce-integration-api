@@ -56,7 +56,7 @@ namespace HitchAtmApi.Lib
                     CurrencySource = CurrencySource.Customer,
                     Comment = Order.Comments,
                     OwnerCode = null,
-                    CustomerReferenceNumber = Order.IdOportunidad,
+                    CustomerReferenceNumber = Order.CodSF,
                     SalesEmployeeCode = Order.Vendedor,
                     ContactCode = Order.CNTCCode,
                     Serie = null,
@@ -65,8 +65,7 @@ namespace HitchAtmApi.Lib
                     {
                         double? lineDiscount = 0;
                         double? linePrice = 0;
-
-                        if (string.IsNullOrEmpty(det.Descuento))
+                        if (det.Descuento.HasValue == false)
                         {
                             lineDiscount = null;
                         }
@@ -74,14 +73,13 @@ namespace HitchAtmApi.Lib
                         {
                             try
                             {
-                                lineDiscount = Convert.ToDouble(det.Descuento);
+                                lineDiscount = det.Descuento.Value;
                             }
                             catch (Exception)
                             {
                                 throw new Exception($"El campo \"Descuento\" del item {i + 1} del campo \"Detail\" no es valido");
                             }
                         }
-
                         try
                         {
                             linePrice = Convert.ToDouble(det.UnitPrice);
@@ -90,7 +88,6 @@ namespace HitchAtmApi.Lib
                         {
                             throw new Exception($"El campo \"UnitPrice\" del item {i + 1} del campo \"Detail\" no es valido");
                         }
-
                         var line = new DocumentLine
                         {
                             ItemCode = det.ItemCode,
@@ -113,16 +110,14 @@ namespace HitchAtmApi.Lib
                             Project = det.Zona,
                             ApplyCommission = true
                         };
-
-                        if (string.IsNullOrEmpty(det.Descuento) == false)
+                        if (det.Descuento.HasValue)
                         {
                             line.UserFields.Add(new HitchSapB1Lib.Objects.UserField
                             {
                                 Name = "U_Dscto",
-                                Value = det.Descuento
+                                Value = det.Descuento.ToString()
                             });
                         }
-
                         return line;
                     }).ToList()
                 };
@@ -346,7 +341,7 @@ namespace HitchAtmApi.Lib
                 {
                     try
                     {
-       
+
                         dynamic customerResult = company.QueryOneResult<dynamic>($"SELECT TOP 1 CardCode FROM OCRD WHERE CardCode = '{SapOrder.CustomerCode}'");
 
                         if (customerResult == null)

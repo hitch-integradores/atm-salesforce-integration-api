@@ -28,6 +28,9 @@
     <ProjectReference Include="..\HitchSapB1Lib\HitchSapB1Lib.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Sap.Data.Hana.v4.5">
+      <HintPath>..\dll\x64\Sap.Data.Hana.v4.5.dll</HintPath>
+    </Reference>
     <Reference Include="SAPBusinessOneSDK">
       <HintPath>..\dll\x64\SAPBusinessOneSDK.dll</HintPath>
     </Reference>
