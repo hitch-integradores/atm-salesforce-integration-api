@@ -56,7 +56,7 @@ namespace HitchAtmApi.Lib
                     CurrencySource = CurrencySource.Customer,
                     Comment = Order.Comments,
                     OwnerCode = null,
-                    CustomerReferenceNumber = Order.CodSF,
+                    CustomerReferenceNumber = Order.IdOportunidad,
                     SalesEmployeeCode = Order.Vendedor,
                     ContactCode = Order.CNTCCode,
                     Serie = null,
@@ -121,6 +121,12 @@ namespace HitchAtmApi.Lib
                         return line;
                     }).ToList()
                 };
+
+                SapOrder.UserFields.Add(new HitchSapB1Lib.Objects.UserField
+                {
+                    Name = "U_SBOID",
+                    Value = Order.CodSF ?? ""
+                });
 
                 if (string.IsNullOrEmpty(Order.CapacitacionReq) == false)
                 {

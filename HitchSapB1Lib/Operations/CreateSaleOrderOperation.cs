@@ -23,11 +23,13 @@ namespace HitchSapB1Lib.Operations
             {
                 SaleOrder = Object as SaleOrder;
 
-                if (string.IsNullOrEmpty(SaleOrder.CustomerReferenceNumber) == false)
+                var SalesforceId = SaleOrder.UserFields.Find(fld => fld.Name == "U_SBOID").Value?.ToString();
+
+                if (string.IsNullOrEmpty(SalesforceId) == false)
                 {
                     var Nums = Company.QueryOneResult<dynamic>(Company.IsHana
-                        ? $"SELECT T0.\"DocNum\", T0.\"DocEntry\" FROM ORDR T0 WHERE T0.\"NumAtCard\" = '{SaleOrder.CustomerReferenceNumber}'"
-                        : $"SELECT T0.DocNum, T0.DocEntry FROM ORDR T0 WHERE T0.NumAtCard = '{SaleOrder.CustomerReferenceNumber}'");
+                        ? $"SELECT T0.\"DocNum\", T0.\"DocEntry\" FROM ORDR T0 WHERE T0.\"U_SBOID\" = '{SalesforceId}'"
+                        : $"SELECT T0.DocNum, T0.DocEntry FROM ORDR T0 WHERE T0.U_SBOID = '{SalesforceId}'");
                     if (Nums != null)
                     {
                         return new Tuple<int, int>(Convert.ToInt32(Nums.DocEntry), Convert.ToInt32(Nums.DocNum));
