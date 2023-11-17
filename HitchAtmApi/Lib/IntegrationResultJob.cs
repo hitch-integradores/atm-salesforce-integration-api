@@ -20,8 +20,8 @@ namespace HitchAtmApi.Lib
                                                Utils.Credentials, Utils.SalesforceInstanceUrl, Utils.SalesforceApiVersion);
             var credentials = salesforceApi.GetCredentials(true);
             salesforceApi.Token = credentials.Token;
-            await IntegrationResultAsync("BusinessAccount", sapResponse.CustomerCodeSap, sapResponse.CustomerCodeSalesforce, "CardCode");
             salesforceApi.UpdateCodeSapSalesForce(sapResponse.CustomerCodeSalesforce, sapResponse.CustomerCodeSap);
+            await IntegrationResultAsync("BusinessAccount", sapResponse.CustomerCodeSap, sapResponse.CustomerCodeSalesforce, "CardCode");
             if (string.IsNullOrEmpty(sapResponse.ContactCodeSap?.ToString()) == false && string.IsNullOrEmpty(sapResponse.ContactCodeSalesforce?.ToString()) == false)
             {
                 salesforceApi.UpdateContactSalesForce(sapResponse.ContactCodeSalesforce, sapResponse.ContactCodeSap.ToString());
